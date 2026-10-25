@@ -7,12 +7,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-/* Layout: a single order-ticket column — goal strip, today's buy ticket, ranked funds, then the data you maintain */
+/* Layout: a single order-ticket column — goal strip, today's buy ticket, ranked funds, diversification, then the data you maintain */
 :root{
   --bg:#f3f4f7; --surface:#ffffff; --ink:#1b2130; --muted:#5f6779; --line:#dfe2ea;
   --accent:#e8930c; --accent-soft:#fdf0db; --accent-ink:#8a5200;
-  --good:#1f8a5b; --warn:#b7791f; --bad:#c2410c;
-  --track:#e7e9ef;
+  --good:#1f8a5b; --warn:#b7791f; --bad:#c2410c; --track:#e7e9ef;
+  --c-nas:#e8930c; --c-spx:#3b6fd8; --c-small:#8b5cf6; --c-energy:#1f8a5b; --c-credit:#0e8f9b; --c-re:#c2557a; --c-intl:#5b6b8c; --c-other:#9aa2b4;
   --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --f-body:"Figtree", "Segoe UI", system-ui, sans-serif;
   --f-num:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -20,26 +20,28 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#12151c; --surface:#1b2029; --ink:#e9ecf3; --muted:#9aa2b4; --line:#2c3340;
   --accent:#f2a531; --accent-soft:#3a2c14; --accent-ink:#f7c370;
-  --good:#4cc38a; --warn:#e3b04b; --bad:#f08a5d; --track:#2a303b; color-scheme:dark}}
+  --good:#4cc38a; --warn:#e3b04b; --bad:#f08a5d; --track:#2a303b;
+  --c-nas:#f2a531; --c-spx:#6b97f0; --c-small:#a78bfa; --c-energy:#4cc38a; --c-credit:#38c5d1; --c-re:#e07ba0; --c-intl:#8d9cbf; --c-other:#6b7385; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#12151c; --surface:#1b2029; --ink:#e9ecf3; --muted:#9aa2b4; --line:#2c3340;
   --accent:#f2a531; --accent-soft:#3a2c14; --accent-ink:#f7c370;
-  --good:#4cc38a; --warn:#e3b04b; --bad:#f08a5d; --track:#2a303b; color-scheme:dark}
+  --good:#4cc38a; --warn:#e3b04b; --bad:#f08a5d; --track:#2a303b;
+  --c-nas:#f2a531; --c-spx:#6b97f0; --c-small:#a78bfa; --c-energy:#4cc38a; --c-credit:#38c5d1; --c-re:#e07ba0; --c-intl:#8d9cbf; --c-other:#6b7385; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
 .wrap{max-width:760px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));display:flex;flex-direction:column;gap:22px}
-h1,h2{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.01em}
 h1{font-size:1.7rem;font-weight:700}
 h2{font-size:1.15rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
 .eyebrow{font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
 .muted{color:var(--muted)}
-.small{font-size:.85rem}
 section{display:flex;flex-direction:column;gap:12px}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
 
-/* goal strip */
-.goal{display:flex;flex-direction:column;gap:10px}
 .goal-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
 .big{font-family:var(--f-num);font-size:1.9rem;font-weight:600;font-variant-numeric:tabular-nums}
 .bar{height:10px;background:var(--track);border-radius:6px;overflow:hidden}
@@ -48,17 +50,23 @@ section{display:flex;flex-direction:column;gap:12px}
 .stat{display:flex;flex-direction:column;gap:2px;min-width:0}
 .stat b{font-family:var(--f-num);font-weight:600;font-size:1.02rem;font-variant-numeric:tabular-nums}
 
-/* inputs */
 .fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fields .full{grid-column:1/-1}
 label{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--muted);font-weight:500;min-width:0}
+label.check{flex-direction:row;align-items:center;gap:8px;font-size:.85rem}
+label.check input{width:auto}
 input,select{font:inherit;font-family:var(--f-num);font-size:.95rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 10px;width:100%;min-width:0}
+select{font-family:var(--f-body)}
 input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .hint{font-size:.78rem;color:var(--muted)}
+.err{font-size:.82rem;color:var(--bad);font-weight:600}
 button{font:inherit;font-weight:600;cursor:pointer;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
 button.primary{background:var(--accent);border-color:var(--accent);color:#1b1306}
+button.danger{color:var(--bad);border-color:currentColor;background:transparent}
+button.sm{padding:6px 11px;font-size:.85rem}
+button:disabled{opacity:.5;cursor:default}
 .btn-row{display:flex;gap:10px;flex-wrap:wrap}
 
-/* ticket */
 .ticket{border:1.5px solid var(--accent);background:var(--accent-soft);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
 .ticket h2{color:var(--accent-ink)}
 .lines{display:flex;flex-direction:column;gap:8px}
@@ -68,19 +76,17 @@ button.primary{background:var(--accent);border-color:var(--accent);color:#1b1306
 .line .amt{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-weight:600;text-align:right}
 .ticket .foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:1px dashed var(--accent);padding-top:10px;font-size:.88rem}
 
-/* fund cards */
 .funds{display:flex;flex-direction:column;gap:10px}
 .fund{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
 .fund-head{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center}
 .rank{font-family:var(--f-num);font-weight:600;color:var(--muted);font-size:.9rem}
 .fund.top .rank{color:var(--accent-ink)}
 .tk-name{display:flex;flex-direction:column;min-width:0}
-.tk-name b{font-family:var(--f-display);font-size:1.1rem}
-.tk-name span{font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-name b{font-family:var(--f-display);font-size:1.1rem;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tk-name span.nm{font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .score{font-family:var(--f-num);font-size:1.3rem;font-weight:600;text-align:right;line-height:1.1}
 .score small{display:block;font-size:.68rem;color:var(--muted);font-weight:400;letter-spacing:.04em}
-.range{display:flex;flex-direction:column;gap:4px}
-.rtrack{position:relative;height:6px;background:var(--track);border-radius:4px;margin:6px 0}
+.rtrack{position:relative;height:6px;background:var(--track);border-radius:4px;margin:6px 7px}
 .rtrack .dot{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:var(--surface);border:3px solid var(--accent);transform:translate(-50%,-50%)}
 .rlabels{display:flex;justify-content:space-between;font-family:var(--f-num);font-size:.75rem;color:var(--muted)}
 .rlabels .mid{color:var(--ink);font-weight:600}
@@ -91,24 +97,44 @@ button.primary{background:var(--accent);border-color:var(--accent);color:#1b1306
 .part .pb i{display:block;height:100%;background:var(--ink);opacity:.75}
 .part .val{font-family:var(--f-num);font-size:.75rem;color:var(--muted)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{font-size:.75rem;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.chip{font-size:.75rem;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);font-family:var(--f-body);font-weight:500}
 .chip.good{color:var(--good);border-color:currentColor}
 .chip.warn{color:var(--warn);border-color:currentColor}
 .chip.bad{color:var(--bad);border-color:currentColor}
+.chip.cat{display:inline-flex;align-items:center;gap:5px}
+.sw{width:9px;height:9px;border-radius:2px;display:inline-block;flex:none}
 
-/* editor */
+/* diversification */
+.mix{display:flex;flex-direction:column;gap:6px}
+.mix-row{display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center}
+.mix-row .eyebrow{font-size:.66rem}
+.stack{display:flex;height:16px;border-radius:5px;overflow:hidden;background:var(--track)}
+.stack i{display:block;height:100%}
+.legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 16px}
+.lg{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;font-size:.85rem;min-width:0}
+.lg .v{font-family:var(--f-num);font-size:.8rem;color:var(--muted);white-space:nowrap}
+.lg .v b{color:var(--ink);font-weight:600}
+.callout{border-left:3px solid var(--warn);padding:2px 0 2px 12px;font-size:.9rem;display:flex;flex-direction:column;gap:4px}
+.callout.ok{border-left-color:var(--good)}
+.sugg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sg{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--bg);min-width:0}
+.sg-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sg-head b{font-family:var(--f-display);font-size:1.05rem}
+.sg p{font-size:.84rem;color:var(--muted)}
+.sg .meta{display:flex;gap:12px;flex-wrap:wrap;font-family:var(--f-num);font-size:.78rem}
+
 details{background:var(--surface);border:1px solid var(--line);border-radius:12px}
-summary{cursor:pointer;padding:12px 14px;display:flex;justify-content:space-between;gap:10px;font-weight:600;list-style:none}
+summary{cursor:pointer;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:600;list-style:none}
 summary::-webkit-details-marker{display:none}
 summary .num{font-weight:400;color:var(--muted);font-size:.85rem}
+details.add{border-style:dashed;border-color:var(--accent)}
+details.add summary{color:var(--accent-ink)}
 .ed{padding:0 14px 14px;display:flex;flex-direction:column;gap:12px}
-.ed .full{grid-column:1/-1}
 .notes{font-size:.88rem;color:var(--muted);display:flex;flex-direction:column;gap:8px;max-width:65ch}
-.notes p{margin:0}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:.9rem;font-weight:600}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:.9rem;font-weight:600;z-index:5}
 @media (max-width:520px){
-  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .parts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stats,.parts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sugg,.legend{grid-template-columns:1fr}
   .big{font-size:1.6rem}
 }
 @media (prefers-reduced-motion:no-preference){.bar>i{transition:width .4s ease}}
@@ -124,16 +150,10 @@ summary .num{font-weight:400;color:var(--muted);font-size:.85rem}
     <h1>Dividend Buy Planner</h1>
   </header>
 
-  <section class="panel goal" aria-label="Progress to goal">
+  <section class="panel" aria-label="Progress to goal">
     <div class="goal-row">
-      <div>
-        <div class="eyebrow">Monthly income now</div>
-        <div class="big" id="incomeNow">$0</div>
-      </div>
-      <div style="text-align:right">
-        <div class="eyebrow">Goal</div>
-        <div class="num" style="font-size:1.1rem;font-weight:600" id="goalLabel">$4,000 / mo</div>
-      </div>
+      <div><div class="eyebrow">Monthly income now</div><div class="big" id="incomeNow">$0</div></div>
+      <div style="text-align:right"><div class="eyebrow">Goal</div><div class="num" style="font-size:1.1rem;font-weight:600" id="goalLabel">$4,000 / mo</div></div>
     </div>
     <div class="bar" aria-hidden="true"><i id="goalBar" style="width:0%"></i></div>
     <div class="stats">
@@ -168,17 +188,57 @@ summary .num{font-weight:400;color:var(--muted);font-size:.85rem}
   </section>
 
   <section aria-label="Fund ranking">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">
-      <h2>Ranking for this buy</h2>
-      <span class="hint">Score out of 100, before this order</span>
-    </div>
+    <div class="sec-head"><h2>Ranking for this buy</h2><span class="hint">Score out of 100, before this order</span></div>
     <div class="funds" id="funds"></div>
+  </section>
+
+  <section class="panel" aria-label="Diversification">
+    <div class="sec-head"><h2>Diversification</h2><span class="hint">By market value</span></div>
+    <div class="mix">
+      <div class="mix-row"><span class="eyebrow">Now</span><div class="stack" id="stackNow"></div></div>
+      <div class="mix-row"><span class="eyebrow">Target</span><div class="stack" id="stackTgt"></div></div>
+    </div>
+    <div class="legend" id="legend"></div>
+    <div id="divCallout"></div>
+    <div class="btn-row"><button type="button" class="primary" id="applyPlan">Apply diversified targets</button></div>
+    <p class="hint" id="planNote">Adds the five funds below as candidates and moves targets to about 55% Nasdaq/tech, with the rest across S&amp;P 500, small caps, energy, credit and real estate. Your holdings don't change; new money gets steered toward what's underweight.</p>
+    <h3 style="margin-top:4px">Funds that would diversify you</h3>
+    <div class="sugg" id="sugg"></div>
   </section>
 
   <section aria-label="Fund data">
     <h2>Fund data</h2>
-    <p class="hint" style="margin:0">Update price, 52-week range and recent distributions before each buy. Seeded from closing data on Oct 23, 2026.</p>
+    <p class="hint">Update price, 52-week range and recent distributions before each buy. Seeded from closing data on Oct 22–23, 2026.</p>
     <div id="editors" style="display:flex;flex-direction:column;gap:8px"></div>
+    <details class="add" id="addBox">
+      <summary>+ Add a fund to consider <span class="num">any ticker</span></summary>
+      <form class="ed" id="addForm" novalidate>
+        <div class="fields">
+          <label for="a-tk">Ticker<input id="a-tk" type="text" autocapitalize="characters" placeholder="SCHD" maxlength="8"></label>
+          <label for="a-name">Name<input id="a-name" type="text" placeholder="Schwab US Dividend Equity"></label>
+          <label for="a-cat">Exposure<select id="a-cat"></select></label>
+          <label for="a-price">Price<input id="a-price" type="number" step="0.01" inputmode="decimal"></label>
+          <label for="a-low">52-week low<input id="a-low" type="number" step="0.01" inputmode="decimal"></label>
+          <label for="a-high">52-week high<input id="a-high" type="number" step="0.01" inputmode="decimal"></label>
+          <label for="a-freq">Payments per year<select id="a-freq"><option value="12">Monthly (12)</option><option value="4">Quarterly (4)</option><option value="2">Semiannual (2)</option><option value="1">Annual (1)</option></select></label>
+          <label for="a-ex">Usual ex-dividend date<select id="a-ex">
+            <option value="firstBiz">First business day</option>
+            <option value="w1">1st Wednesday</option><option value="w2">2nd Wednesday</option>
+            <option value="w3">3rd Wednesday</option><option value="w4">4th Wednesday</option>
+            <option value="lastBiz">Last business day</option>
+            <option value="day">A set day of the month</option>
+          </select></label>
+          <label for="a-day" id="a-day-wrap" hidden>Day of month<input id="a-day" type="number" min="1" max="28" value="15"></label>
+          <label for="a-months" id="a-months-wrap" hidden>Months it pays (e.g. 3, 6, 9, 12)<input id="a-months" type="text" value="3, 6, 9, 12"></label>
+          <label class="full" for="a-divs">Recent distributions, newest first<input id="a-divs" type="text" placeholder="0.25, 0.25, 0.24, 0.25, 0.24, 0.24"></label>
+          <label for="a-target">Target weight (%)<input id="a-target" type="number" step="1" min="0" value="5"></label>
+          <label for="a-shares">Shares already held<input id="a-shares" type="number" step="0.001" min="0" value="0"></label>
+          <label class="check full" for="a-lag"><input id="a-lag" type="checkbox"> Pays the month after the ex-dividend date</label>
+        </div>
+        <div class="err" id="addErr" hidden></div>
+        <div class="btn-row"><button class="primary" type="submit">Add fund</button></div>
+      </form>
+    </details>
   </section>
 
   <section aria-label="Settings">
@@ -193,7 +253,7 @@ summary .num{font-weight:400;color:var(--muted);font-size:.85rem}
           <label for="contrib">New money each month ($)<input type="number" id="contrib" min="0"></label>
           <label for="drift">Distribution change per year (%)<input type="number" id="drift" step="0.5"></label>
         </div>
-        <p class="hint" style="margin:0">Weights are normalized, so they don't need to add to 100. A negative distribution change models the slow NAV erosion common in option-income funds.</p>
+        <p class="hint">Weights are normalized, so they don't need to add to 100. Targets are normalized too. A negative distribution change models the slow NAV erosion common in option-income funds.</p>
         <div class="btn-row"><button type="button" id="reset">Reset all data to seed values</button></div>
       </div>
     </details>
@@ -201,107 +261,136 @@ summary .num{font-weight:400;color:var(--muted);font-size:.85rem}
 
   <section class="notes" aria-label="How the score works">
     <h2 style="color:var(--ink)">How the score works</h2>
-    <p><b>Total return</b> blends three things: where the price sits in its 52-week range (lower is cheaper), whether recent distributions are rising or shrinking, and a sustainability check that discounts yields far above 12%, since those usually come partly out of NAV.</p>
-    <p><b>Monthly dividend</b> rewards a higher yield on the price you pay, with a small bonus when the next ex-dividend date lands 1 to 10 days after the buy, so the new shares are paid that month.</p>
-    <p><b>Balance</b> favors funds under their target weight. The order is built one share at a time, re-scoring after each share, so a large cash amount spreads across funds instead of piling into one.</p>
+    <p><b>Total return</b> blends where the price sits in its 52-week range (lower is cheaper), whether recent distributions are rising or shrinking, and a sustainability check that discounts yields far above 12%, since those usually come partly out of NAV.</p>
+    <p><b>Monthly dividend</b> rewards a higher yield on the price you pay, with a small bonus when the next ex-dividend date lands 1 to 10 days after the buy.</p>
+    <p><b>Balance</b> favors funds below their own target and exposures below their combined target. The order is built one share at a time, re-scoring after each share, so cash spreads across funds.</p>
     <p>This is a rules-based helper, not financial advice. Ex-dividend dates are estimated from each fund's recent pattern; confirm them with your broker.</p>
   </section>
 </div>
 <div class="toast" id="toast" hidden></div>
 
 <script>
-const SEED = {
+const CATS=[
+  {id:"nas",label:"Nasdaq / tech"},{id:"spx",label:"S&P 500"},{id:"small",label:"Small cap"},
+  {id:"energy",label:"Energy infrastructure"},{id:"credit",label:"Credit / bonds"},{id:"re",label:"Real estate"},
+  {id:"intl",label:"International"},{id:"other",label:"Other"}];
+const catLabel=id=>(CATS.find(c=>c.id===id)||CATS[7]).label;
+
+const SEED={
   settings:{wTR:60,wDiv:25,wBal:15,goal:4000,contrib:500,drift:0},
   funds:[
-    {tk:"FSPTX",name:"Fidelity Select Technology",shares:1444,price:54.63,low:37.88,high:59.55,freq:2,divs:[2.175,2.175],target:25,
+    {tk:"FSPTX",name:"Fidelity Select Technology",cat:"nas",shares:1444,price:54.63,low:37.88,high:59.55,freq:2,divs:[2.175,2.175],target:25,
       sched:{type:"months",months:[4,12],day:10},note:"Mutual fund. Distributions are mostly capital gains, paid about twice a year (estimated)."},
-    {tk:"JEPQ",name:"JPMorgan Nasdaq Equity Premium Income",shares:1000,price:58.43,low:53.51,high:61.72,freq:12,divs:[0.567,0.567,0.567,0.567,0.567,0.567],target:20,
+    {tk:"JEPQ",name:"JPMorgan Nasdaq Equity Premium Income",cat:"nas",shares:1000,price:58.43,low:53.51,high:61.72,freq:12,divs:[0.567,0.567,0.567,0.567,0.567,0.567],target:20,
       sched:{type:"firstBiz"},note:"Distribution amounts estimated from the trailing $6.80/yr. Enter actual payouts for a trend signal."},
-    {tk:"MLPI",name:"NEOS MLP & Energy Infrastructure High Income",shares:625,price:52.50,low:49.15,high:58.47,freq:12,divs:[0.6022,0.6276,0.6402,0.6834,0.6576,0.7038],target:15,
-      sched:{type:"nthWeekday",n:3,dow:3},note:"Only holding outside Nasdaq/tech."},
-    {tk:"QQQI",name:"NEOS Nasdaq 100 High Income",shares:725,price:52.59,low:47.87,high:57.84,freq:12,divs:[0.6343,0.6339,0.6518,0.6346,0.6572,0.6589],target:20,
+    {tk:"MLPI",name:"NEOS MLP & Energy Infrastructure High Income",cat:"energy",shares:625,price:52.50,low:49.15,high:58.47,freq:12,divs:[0.6022,0.6276,0.6402,0.6834,0.6576,0.7038],target:15,
       sched:{type:"nthWeekday",n:3,dow:3},note:""},
-    {tk:"ROCQ",name:"JPMorgan Nasdaq Equity Premium Yield",shares:1001,price:55.14,low:47.19,high:58.27,freq:12,divs:[0.4910,0.4936,0.7083,0.5232,0.4973,0.6668],target:15,
+    {tk:"QQQI",name:"NEOS Nasdaq 100 High Income",cat:"nas",shares:725,price:52.59,low:47.87,high:57.84,freq:12,divs:[0.6343,0.6339,0.6518,0.6346,0.6572,0.6589],target:20,
+      sched:{type:"nthWeekday",n:3,dow:3},note:""},
+    {tk:"ROCQ",name:"JPMorgan Nasdaq Equity Premium Yield",cat:"nas",shares:1001,price:55.14,low:47.19,high:58.27,freq:12,divs:[0.4910,0.4936,0.7083,0.5232,0.4973,0.6668],target:15,
       sched:{type:"firstBiz"},note:""},
-    {tk:"XQQI",name:"NEOS Boosted Nasdaq-100 High Income",shares:69,price:46.63,low:41.68,high:54.70,freq:12,divs:[0.8823,0.8403,0.8236,0.8772,0.9216,0.8560],target:5,
-      sched:{type:"nthWeekday",n:1,dow:3},note:"Uses leverage to boost income; higher swings both ways."}
+    {tk:"XQQI",name:"NEOS Boosted Nasdaq-100 High Income",cat:"nas",shares:69,price:46.63,low:41.68,high:54.70,freq:12,divs:[0.8823,0.8403,0.8236,0.8772,0.9216,0.8560],target:5,
+      sched:{type:"nthWeekday",n:1,dow:3},note:"Uses leverage to boost income; bigger swings both ways."}
   ]
 };
+// Diversifying candidates (data as of Oct 22–23, 2026 closes)
+const SUGGEST=[
+  {tk:"JBBB",name:"Janus Henderson B-BBB CLO ETF",cat:"credit",shares:0,price:47.01,low:46.42,high:48.30,freq:12,divs:[0.2514,0.2404,0.2272,0.2308,0.2275,0.2373],target:10,
+    sched:{type:"lastBiz"},lag:1,why:"Floating-rate corporate loans. Very little stock-market correlation and a tight price range; steadies income when tech sells off.",note:"Pays early the following month."},
+  {tk:"O",name:"Realty Income",cat:"re",shares:0,price:56.89,low:53.33,high:67.94,freq:12,divs:[0.2715,0.2715,0.271,0.271,0.271,0.2705],target:8,
+    sched:{type:"lastBiz"},lag:1,why:"Monthly-paying REIT with a long record of small raises. Real estate behaves differently from growth stocks and sits near its 52-week low.",note:"Single stock, not a fund. Pays mid the following month."},
+  {tk:"SPYI",name:"NEOS S&P 500 High Income",cat:"spx",shares:0,price:52.64,low:47.77,high:54.47,freq:12,divs:[0.5087,0.5338,0.5423,0.530,0.531,0.5353],target:5,
+    sched:{type:"nthWeekday",n:3,dow:3},why:"Same option-income approach as QQQI, but on all 500 S&P stocks, so financials, healthcare and industrials join tech.",note:""},
+  {tk:"JEPI",name:"JPMorgan Equity Premium Income",cat:"spx",shares:0,price:56.85,low:55.10,high:59.90,freq:12,divs:[0.3413,0.3714,0.3666,0.3872,0.3892,0.4476],target:5,
+    sched:{type:"firstBiz"},why:"JEPQ's S&P sibling, tilted to lower-volatility value stocks. Lower yield, but the least tech-dependent equity income here.",note:"52-week range from a secondary source; verify."},
+  {tk:"IWMI",name:"NEOS Russell 2000 High Income",cat:"small",shares:0,price:48.29,low:45.64,high:53.86,freq:12,divs:[0.5728,0.6075,0.6373,0.6250,0.6277,0.6046],target:5,
+    sched:{type:"nthWeekday",n:3,dow:3},why:"Small US companies, which barely overlap with the Nasdaq-100. Keeps a QQQI-like yield while adding a different slice of the market.",note:""}
+];
+const PLAN_TARGETS={FSPTX:20,JEPQ:13,QQQI:10,ROCQ:9,XQQI:3,MLPI:12,JBBB:10,O:8,SPYI:5,JEPI:5,IWMI:5};
+
 const KEY="divplanner.v1";
 let state, cashTouched=false, lastPurchase=null, plan=null;
-function load(){try{const s=localStorage.getItem(KEY);if(s){return JSON.parse(s)}}catch(e){}return structuredClone(SEED)}
+function load(){
+  let s=null;try{const raw=localStorage.getItem(KEY);if(raw)s=JSON.parse(raw)}catch(e){}
+  if(!s||!Array.isArray(s.funds))s=structuredClone(SEED);
+  s.funds.forEach(f=>{const seed=[...SEED.funds,...SUGGEST].find(x=>x.tk===f.tk);
+    if(!f.cat)f.cat=seed?seed.cat:"other"; if(!f.sched)f.sched=seed?seed.sched:{type:"firstBiz"}; if(f.lag==null)f.lag=seed&&seed.lag?seed.lag:0; if(f.target==null)f.target=0});
+  s.settings=Object.assign({},SEED.settings,s.settings||{});
+  return s}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
 state=load();
 
 const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const usd=(v,d=0)=>(v<0?"-":"")+"$"+Math.abs(v).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
 const pct=(v,d=1)=>(v*100).toFixed(d)+"%";
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 const avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:0;
+const sw=cat=>`<span class="sw" style="background:var(--c-${cat})"></span>`;
 
 function annualDiv(f){const n=Math.min(f.divs.length,f.freq>=12?6:f.freq);return avg(f.divs.slice(0,n))*f.freq}
 function yieldOf(f){return f.price>0?annualDiv(f)/f.price:0}
+function rangePos(f){const s=f.high-f.low;return s>0?clamp((f.price-f.low)/s):.5}
 
-// ex-dividend date estimates
 function firstBiz(y,m){let d=new Date(y,m,1);while(d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()+1);return d}
-function nthWeekday(y,m,n,dow){let d=new Date(y,m,1);let c=0;while(true){if(d.getDay()===dow){c++;if(c===n)return d}d.setDate(d.getDate()+1)}}
+function lastBiz(y,m){let d=new Date(y,m+1,0);while(d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()-1);return d}
+function nthWeekday(y,m,n,dow){let d=new Date(y,m,1),c=0;for(let i=0;i<31;i++){if(d.getDay()===dow&&++c===n)return d;d.setDate(d.getDate()+1)}return null}
 function exInMonth(f,y,m){const s=f.sched;
   if(s.type==="firstBiz")return firstBiz(y,m);
+  if(s.type==="lastBiz")return lastBiz(y,m);
   if(s.type==="nthWeekday")return nthWeekday(y,m,s.n,s.dow);
   if(s.type==="months")return s.months.includes(m+1)?new Date(y,m,s.day):null;return null}
-function nextEx(f,from){for(let i=0;i<14;i++){const y=from.getFullYear(),m=from.getMonth()+i;const d=exInMonth(f,new Date(y,m,1).getFullYear(),new Date(y,m,1).getMonth());if(d&&d>from)return d}return null}
+function nextEx(f,from){for(let i=0;i<14;i++){const b=new Date(from.getFullYear(),from.getMonth()+i,1);const d=exInMonth(f,b.getFullYear(),b.getMonth());if(d&&d>from)return d}return null}
 function parseDate(v){const [y,m,d]=v.split("-").map(Number);return new Date(y,m-1,d)}
 
-function totals(holdings){let value=0,income=0;state.funds.forEach((f,i)=>{const sh=holdings?holdings[i]:f.shares;value+=sh*f.price;income+=sh*annualDiv(f)});return {value,income}}
+function totals(h){let value=0,income=0;state.funds.forEach((f,i)=>{const sh=h?h[i]:f.shares;value+=sh*f.price;income+=sh*annualDiv(f)});return {value,income}}
+function targetSum(){return state.funds.reduce((s,f)=>s+(f.target||0),0)||1}
+function catMix(h){const t=totals(h).value||1,ts=targetSum();const m={};
+  state.funds.forEach((f,i)=>{const c=m[f.cat]||(m[f.cat]={w:0,t:0});c.w+=(h?h[i]:f.shares)*f.price/t;c.t+=(f.target||0)/ts});return m}
 
-function scoreFund(f,i,holdings,buyDate){
-  const span=f.high-f.low;const pos=span>0?clamp((f.price-f.low)/span):.5;
-  const value=1-pos;
+function scoreFund(f,i,h,buyDate){
+  const pos=rangePos(f),value=1-pos;
   let trend=0,health=.5;
   if(f.freq>=12&&f.divs.length>=6){trend=avg(f.divs.slice(0,3))/avg(f.divs.slice(3,6))-1;health=clamp(.5+trend*5)}
-  const y=yieldOf(f);
-  const sustain=clamp(1-Math.max(0,y-.12)/.12);
-  const ex=nextEx(f,buyDate);const days=ex?Math.round((ex-buyDate)/864e5):99;
+  const y=yieldOf(f),sustain=clamp(1-Math.max(0,y-.12)/.12);
+  const ex=nextEx(f,buyDate),days=ex?Math.round((ex-buyDate)/864e5):99;
   const exBonus=days>=1&&days<=10?1-(days-1)/10:0;
   const yScore=clamp(y/.20);
-  const tot=totals(holdings).value;const w=tot>0?holdings[i]*f.price/tot:0;const tgt=(f.target||0)/100;
-  const bal=tgt>0?clamp(.5+(tgt-w)/tgt*.5):(w>0?.2:.5);
-  const s=state.settings;const W=(s.wTR+s.wDiv+s.wBal)||1;
-  const trPart=.55*value+.25*health+.20*sustain;
-  const divPart=.8*yScore+.2*exBonus;
-  const total=(s.wTR*trPart+s.wDiv*divPart+s.wBal*bal)/W;
-  return {total,trPart,divPart,bal,value,health,sustain,pos,trend,y,ex,days,w,tgt}
+  const tv=totals(h).value,w=tv>0?h[i]*f.price/tv:0,tgt=(f.target||0)/targetSum();
+  const fb=tgt>0?clamp(.5+(tgt-w)/tgt*.5):.5;
+  const cm=catMix(h)[f.cat];const cb=cm&&cm.t>0?clamp(.5+(cm.t-cm.w)/cm.t*.5):.5;
+  const bal=.5*fb+.5*cb;
+  const s=state.settings,W=(s.wTR+s.wDiv+s.wBal)||1;
+  const trPart=.55*value+.25*health+.20*sustain, divPart=.8*yScore+.2*exBonus;
+  return {total:(s.wTR*trPart+s.wDiv*divPart+s.wBal*bal)/W,trPart,divPart,bal,value,pos,trend,y,ex,days,w,tgt}
 }
 
-function dividendsThisMonth(buyDate){let sum=0;const y=buyDate.getFullYear(),m=buyDate.getMonth();
-  state.funds.forEach(f=>{const ex=exInMonth(f,y,m);if(ex){const per=f.freq>=12?f.divs[0]:annualDiv(f)/f.freq;sum+=f.shares*per}});return sum}
+function dividendsThisMonth(d){let sum=0;
+  state.funds.forEach(f=>{const b=new Date(d.getFullYear(),d.getMonth()-(f.lag||0),1);
+    if(exInMonth(f,b.getFullYear(),b.getMonth())){sum+=f.shares*(f.freq>=12?f.divs[0]:annualDiv(f)/f.freq)}});return sum}
 
 function buildPlan(cash,buyDate){
-  const h=state.funds.map(f=>f.shares);const buys=state.funds.map(()=>0);let left=cash;
-  for(let k=0;k<2000;k++){
-    let best=-1,bs=-1;state.funds.forEach((f,i)=>{if(f.price<=left&&f.price>0){const sc=scoreFund(f,i,h,buyDate).total;if(sc>bs){bs=sc;best=i}}});
-    if(best<0)break;h[best]++;buys[best]++;left-=state.funds[best].price;
-  }
-  return {buys,left,h}
+  const h=state.funds.map(f=>f.shares),buys=state.funds.map(()=>0);let left=cash;
+  for(let k=0;k<2000;k++){let best=-1,bs=-1;
+    state.funds.forEach((f,i)=>{if(f.price>0&&f.price<=left){const sc=scoreFund(f,i,h,buyDate).total;if(sc>bs){bs=sc;best=i}}});
+    if(best<0)break;h[best]++;buys[best]++;left-=state.funds[best].price}
+  return {buys,left}
 }
 
-function etaMonths(){const s=state.settings;const t=totals();const y=t.value>0?t.income/t.value:0;
-  let inc=t.income/12;const goal=s.goal;if(inc>=goal)return 0;if(y<=0)return null;
-  for(let m=1;m<=600;m++){const cash=s.contrib+inc;inc+=cash*y/12;inc*=1+(s.drift/100)/12;if(inc>=goal)return m}return null}
+function etaMonths(){const s=state.settings,t=totals(),y=t.value>0?t.income/t.value:0;let inc=t.income/12;
+  if(inc>=s.goal)return 0;if(y<=0)return null;
+  for(let m=1;m<=600;m++){inc+=(s.contrib+inc)*y/12;inc*=1+(s.drift/100)/12;if(inc>=s.goal)return m}return null}
 
 function render(){
-  const buyDate=$("buyDate").value?parseDate($("buyDate").value):new Date();
-  const s=state.settings;
-  const t=totals();const mInc=t.income/12;
-  $("incomeNow").textContent=usd(mInc);
-  $("goalLabel").textContent=usd(s.goal)+" / mo";
+  const buyDate=$("buyDate").value?parseDate($("buyDate").value):new Date(), s=state.settings;
+  const t=totals(),mInc=t.income/12;
+  $("incomeNow").textContent=usd(mInc);$("goalLabel").textContent=usd(s.goal)+" / mo";
   $("goalBar").style.width=clamp(mInc/s.goal)*100+"%";
-  $("pValue").textContent=usd(t.value);
-  $("pYield").textContent=t.value?pct(t.income/t.value):"–";
+  $("pValue").textContent=usd(t.value);$("pYield").textContent=t.value?pct(t.income/t.value):"–";
   const eta=etaMonths();
   if(eta===0){$("pEta").textContent="Reached";$("etaNote").textContent="Current holdings already cover the goal."}
   else if(eta===null){$("pEta").textContent="50+ yrs";$("etaNote").textContent="At these settings the goal isn't reached within 50 years."}
-  else{const d=new Date(buyDate.getFullYear(),buyDate.getMonth()+eta,1);$("pEta").textContent=(eta>=24?(eta/12).toFixed(1)+" yrs":eta+" mo");
+  else{const d=new Date(buyDate.getFullYear(),buyDate.getMonth()+eta,1);$("pEta").textContent=eta>=24?(eta/12).toFixed(1)+" yrs":eta+" mo";
     $("etaNote").textContent=`About ${d.toLocaleDateString("en-US",{month:"short",year:"numeric"})}, reinvesting all distributions plus ${usd(s.contrib)}/mo at today's blended yield, with distributions changing ${s.drift>=0?"+":""}${s.drift}%/yr. ${usd(s.goal-mInc)}/mo to go.`}
 
   const divM=dividendsThisMonth(buyDate);
@@ -309,75 +398,137 @@ function render(){
   $("cashNote").textContent=`Suggested: ${usd(s.contrib)} new money + about ${usd(divM,2)} in distributions paid in ${buyDate.toLocaleDateString("en-US",{month:"long"})}${cashTouched?". You've entered your own amount.":"."}`;
   const cash=parseFloat($("cash").value)||0;
 
-  // ranking before order
   const h0=state.funds.map(f=>f.shares);
   const scored=state.funds.map((f,i)=>({f,i,sc:scoreFund(f,i,h0,buyDate)})).sort((a,b)=>b.sc.total-a.sc.total);
-
   plan=buildPlan(cash,buyDate);
   const lines=state.funds.map((f,i)=>({f,n:plan.buys[i]})).filter(x=>x.n>0).sort((a,b)=>b.n*b.f.price-a.n*a.f.price);
   if(!lines.length){$("tHead").textContent=cash>0?"Not enough cash for a whole share":"Enter the cash you're investing";$("tLines").innerHTML="";$("tAdd").textContent="$0";$("record").disabled=true}
-  else{
-    $("record").disabled=false;
+  else{$("record").disabled=false;
     $("tHead").textContent=lines.length===1?`Buy ${lines[0].n} ${lines[0].f.tk}`:`Buy ${lines[0].f.tk} first, then ${lines.slice(1).map(l=>l.f.tk).join(", ")}`;
-    $("tLines").innerHTML=lines.map(l=>`<div class="line"><span class="tk">${l.f.tk}</span><span class="what num">${l.n} sh × ${usd(l.f.price,2)}</span><span class="amt">${usd(l.n*l.f.price,2)}</span></div>`).join("");
-    const add=lines.reduce((s,l)=>s+l.n*annualDiv(l.f),0)/12;$("tAdd").textContent=usd(add,2);
-  }
+    $("tLines").innerHTML=lines.map(l=>`<div class="line"><span class="tk">${esc(l.f.tk)}</span><span class="what num">${l.n} sh × ${usd(l.f.price,2)}</span><span class="amt">${usd(l.n*l.f.price,2)}</span></div>`).join("");
+    $("tAdd").textContent=usd(lines.reduce((a,l)=>a+l.n*annualDiv(l.f),0)/12,2)}
   $("tLeft").textContent=usd(plan.left,2);
 
-  $("funds").innerHTML=scored.map((x,r)=>{const {f,sc}=x;const chips=[];
+  $("funds").innerHTML=scored.map((x,r)=>{const {f,sc}=x,chips=[];
+    chips.push(`<span class="chip cat">${sw(f.cat)}${catLabel(f.cat)}</span>`);
     chips.push(`<span class="chip ${sc.pos<.35?"good":sc.pos>.75?"warn":""}">${pct(sc.pos,0)} of 52-wk range</span>`);
     chips.push(`<span class="chip">${pct(sc.y)} yield</span>`);
     if(f.freq>=12&&f.divs.length>=6)chips.push(`<span class="chip ${sc.trend<-.05?"bad":sc.trend<-.01?"warn":sc.trend>.01?"good":""}">payout ${sc.trend>=0?"+":""}${pct(sc.trend)} vs prior 3</span>`);
     if(sc.y>.18)chips.push(`<span class="chip warn">yield likely includes NAV</span>`);
     if(sc.ex)chips.push(`<span class="chip ${sc.days>=1&&sc.days<=10?"good":""}">ex-div ~${sc.ex.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</span>`);
     chips.push(`<span class="chip">${pct(sc.w,0)} held · target ${pct(sc.tgt,0)}</span>`);
-    const part=(lab,v,txt)=>`<div class="part"><span class="lab">${lab}</span><span class="pb"><i style="width:${v*100}%"></i></span><span class="val">${txt}</span></div>`;
+    const part=(lab,v)=>`<div class="part"><span class="lab">${lab}</span><span class="pb"><i style="width:${v*100}%"></i></span><span class="val">${Math.round(v*100)}</span></div>`;
     const buying=plan.buys[x.i];
     return `<article class="fund ${r===0?"top":""}">
       <div class="fund-head"><span class="rank">#${r+1}</span>
-        <div class="tk-name"><b>${f.tk}${buying?` <span class="chip good" style="font-family:var(--f-body);font-size:.7rem;vertical-align:middle">+${buying} sh</span>`:""}</b><span>${f.name}</span></div>
+        <div class="tk-name"><b>${esc(f.tk)}${f.shares===0?`<span class="chip">candidate</span>`:""}${buying?`<span class="chip good">+${buying} sh</span>`:""}</b><span class="nm">${esc(f.name)}</span></div>
         <div class="score">${Math.round(sc.total*100)}<small>SCORE</small></div></div>
-      <div class="range"><div class="rtrack"><span class="dot" style="left:${sc.pos*100}%"></span></div>
+      <div><div class="rtrack"><span class="dot" style="left:${sc.pos*100}%"></span></div>
         <div class="rlabels"><span>${usd(f.low,2)}</span><span class="mid">${usd(f.price,2)}</span><span>${usd(f.high,2)}</span></div></div>
-      <div class="parts">${part("Value",sc.value,Math.round(sc.value*100))}${part("Total return",sc.trPart,Math.round(sc.trPart*100))}${part("Dividend",sc.divPart,Math.round(sc.divPart*100))}${part("Balance",sc.bal,Math.round(sc.bal*100))}</div>
+      <div class="parts">${part("Value",sc.value)}${part("Total return",sc.trPart)}${part("Dividend",sc.divPart)}${part("Balance",sc.bal)}</div>
       <div class="chips">${chips.join("")}</div>
-      ${f.note?`<div class="hint">${f.note}</div>`:""}
+      ${f.note?`<div class="hint">${esc(f.note)}</div>`:""}
     </article>`}).join("");
+
+  renderDiversity();
 }
+
+function renderDiversity(){
+  const m=catMix();const used=CATS.filter(c=>m[c.id]);
+  $("stackNow").innerHTML=used.map(c=>`<i style="width:${m[c.id].w*100}%;background:var(--c-${c.id})" title="${c.label}"></i>`).join("");
+  $("stackTgt").innerHTML=used.map(c=>`<i style="width:${m[c.id].t*100}%;background:var(--c-${c.id})" title="${c.label}"></i>`).join("");
+  $("legend").innerHTML=used.map(c=>`<div class="lg">${sw(c.id)}<span>${c.label}</span><span class="v"><b>${pct(m[c.id].w,0)}</b> → ${pct(m[c.id].t,0)}</span></div>`).join("");
+  const nas=m.nas?m.nas.w:0;const over=used.map(c=>({c,d:m[c.id].w-m[c.id].t})).sort((a,b)=>b.d-a.d)[0];
+  const monthly=state.settings.contrib+totals().income/12,tv=totals().value;
+  const yrs=over&&over.d>.02?Math.log(m[over.c.id].w/m[over.c.id].t)/Math.log(1+monthly*12/tv):0;
+  let html="";
+  if(nas>.6)html+=`<div class="callout"><b>${pct(nas,0)} of your money rides on the Nasdaq-100 and tech.</b><span>The option-income funds sell calls on those same stocks, so in a tech drawdown their prices and payouts fall together. Only ${pct(m.energy?m.energy.w:0,0)} sits outside that trade.</span></div>`;
+  if(over&&over.d>.02)html+=`<div class="callout"><b>${over.c.label} is ${pct(over.d,0)} over target.</b><span>Steering only new money (about ${usd(monthly)}/mo against ${usd(tv)}), closing that gap takes roughly ${yrs>0?yrs.toFixed(1):"–"} years without selling anything.</span></div>`;
+  if(!html)html=`<div class="callout ok"><b>Allocation is within 2 points of target everywhere.</b><span>The planner will keep new buys close to these weights.</span></div>`;
+  $("divCallout").innerHTML=html;
+  const have=new Set(state.funds.map(f=>f.tk));
+  const allIn=Object.keys(PLAN_TARGETS).every(k=>have.has(k))&&state.funds.every(f=>PLAN_TARGETS[f.tk]==null||f.target===PLAN_TARGETS[f.tk]);
+  $("applyPlan").disabled=allIn;$("applyPlan").textContent=allIn?"Diversified targets applied":"Apply diversified targets";
+  $("sugg").innerHTML=SUGGEST.map(sg=>{const added=have.has(sg.tk);
+    return `<div class="sg"><div class="sg-head"><b>${sg.tk}</b>${added?`<span class="chip good">added</span>`:`<button type="button" class="sm" data-add="${sg.tk}">Add</button>`}</div>
+      <span class="chip cat" style="align-self:flex-start">${sw(sg.cat)}${catLabel(sg.cat)}</span>
+      <p>${sg.why}</p>
+      <div class="meta"><span>${pct(yieldOf(sg))} yield</span><span>${pct(rangePos(sg),0)} of range</span><span>${usd(sg.price,2)}</span></div></div>`}).join("");
+  $("sugg").querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click",()=>{addFund(structuredClone(SUGGEST.find(s=>s.tk===b.dataset.add)));toast(b.dataset.add+" added as a candidate")}));
+}
+
+function addFund(f){delete f.why;state.funds.push(f);save();buildEditors();render()}
 
 function buildEditors(){
   $("editors").innerHTML=state.funds.map((f,i)=>`<details>
-    <summary>${f.tk} <span class="num">${f.shares.toLocaleString()} sh · ${usd(f.price,2)}</span></summary>
+    <summary><span>${sw(f.cat)} ${esc(f.tk)}</span><span class="num">${f.shares.toLocaleString()} sh · ${usd(f.price,2)}</span></summary>
     <div class="ed"><div class="fields">
       <label for="e-price-${i}">Price<input id="e-price-${i}" data-i="${i}" data-k="price" type="number" step="0.01" value="${f.price}"></label>
       <label for="e-shares-${i}">Shares held<input id="e-shares-${i}" data-i="${i}" data-k="shares" type="number" step="0.001" value="${f.shares}"></label>
       <label for="e-low-${i}">52-week low<input id="e-low-${i}" data-i="${i}" data-k="low" type="number" step="0.01" value="${f.low}"></label>
       <label for="e-high-${i}">52-week high<input id="e-high-${i}" data-i="${i}" data-k="high" type="number" step="0.01" value="${f.high}"></label>
       <label for="e-target-${i}">Target weight (%)<input id="e-target-${i}" data-i="${i}" data-k="target" type="number" step="1" value="${f.target}"></label>
+      <label for="e-cat-${i}">Exposure<select id="e-cat-${i}" data-i="${i}" data-k="cat">${CATS.map(c=>`<option value="${c.id}"${c.id===f.cat?" selected":""}>${c.label}</option>`).join("")}</select></label>
       <label for="e-freq-${i}">Payments per year<input id="e-freq-${i}" data-i="${i}" data-k="freq" type="number" step="1" min="1" value="${f.freq}"></label>
       <label class="full" for="e-divs-${i}">Recent distributions, newest first<input id="e-divs-${i}" data-i="${i}" data-k="divs" type="text" value="${f.divs.join(", ")}"></label>
-    </div><span class="hint">Six monthly payouts give a trend signal. Annual income uses the average of the last six (or the last year for less frequent payers).</span></div>
+    </div><span class="hint">Six monthly payouts give a trend signal. Annual income uses the average of the last six (or the last year for less frequent payers).</span>
+    <div class="btn-row"><button type="button" class="danger sm" data-rm="${i}">Remove ${esc(f.tk)}</button></div></div>
   </details>`).join("");
-  $("editors").querySelectorAll("input").forEach(el=>el.addEventListener("change",e=>{
+  $("editors").querySelectorAll("input,select").forEach(el=>el.addEventListener("change",()=>{
     const f=state.funds[+el.dataset.i],k=el.dataset.k;
     if(k==="divs"){const a=el.value.split(/[,\s]+/).map(Number).filter(v=>v>0);if(a.length)f.divs=a}
+    else if(k==="cat")f.cat=el.value;
     else{const v=parseFloat(el.value);if(!isNaN(v))f[k]=k==="freq"?Math.max(1,Math.round(v)):v}
     save();buildEditors();render();
+    const d=$("editors").children[+el.dataset.i];if(d)d.open=true;
   }));
+  $("editors").querySelectorAll("[data-rm]").forEach(b=>b.addEventListener("click",()=>{
+    if(!b.dataset.armed){b.dataset.armed="1";b.textContent="Tap again to remove";return}
+    const f=state.funds[+b.dataset.rm];state.funds.splice(+b.dataset.rm,1);lastPurchase=null;$("undo").hidden=true;save();buildEditors();render();toast(f.tk+" removed")}));
 }
 
-function bindSettings(){
-  ["wTR","wDiv","wBal","goal","contrib","drift"].forEach(k=>{const el=$(k);el.value=state.settings[k];
-    el.addEventListener("change",()=>{const v=parseFloat(el.value);if(!isNaN(v)){state.settings[k]=v;save();render()}})});
-}
+function bindSettings(){["wTR","wDiv","wBal","goal","contrib","drift"].forEach(k=>{const el=$(k);el.value=state.settings[k];
+  el.onchange=()=>{const v=parseFloat(el.value);if(!isNaN(v)){state.settings[k]=v;save();render()}}})}
 function toast(msg){const t=$("toast");t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2200)}
 
+// add-fund form
+$("a-cat").innerHTML=CATS.map(c=>`<option value="${c.id}">${c.label}</option>`).join("");
+function syncAddForm(){const ex=$("a-ex").value,fq=+$("a-freq").value;
+  $("a-day-wrap").hidden=!(ex==="day"||fq<12);$("a-months-wrap").hidden=fq>=12}
+$("a-ex").addEventListener("change",syncAddForm);$("a-freq").addEventListener("change",syncAddForm);syncAddForm();
+$("addForm").addEventListener("submit",e=>{e.preventDefault();const err=$("addErr");
+  const tk=$("a-tk").value.trim().toUpperCase(),price=parseFloat($("a-price").value),low=parseFloat($("a-low").value),high=parseFloat($("a-high").value);
+  const divs=$("a-divs").value.split(/[,\s]+/).map(Number).filter(v=>v>0),fq=+$("a-freq").value;
+  let msg="";
+  if(!/^[A-Z0-9.\-]{1,8}$/.test(tk))msg="Enter a ticker, like SCHD.";
+  else if(state.funds.some(f=>f.tk===tk))msg=tk+" is already in the planner.";
+  else if(!(price>0))msg="Enter the current price.";
+  else if(!(low>0&&high>0&&high>=low))msg="Enter a 52-week low and high, with the high at or above the low.";
+  else if(!divs.length)msg="Enter at least one recent distribution, newest first.";
+  if(msg){err.textContent=msg;err.hidden=false;return}
+  err.hidden=true;
+  const ex=$("a-ex").value,day=Math.min(28,Math.max(1,parseInt($("a-day").value)||15));let sched;
+  if(fq<12){const months=$("a-months").value.split(/[,\s]+/).map(Number).filter(m=>m>=1&&m<=12);sched={type:"months",months:months.length?months:[3,6,9,12],day}}
+  else if(ex==="day")sched={type:"months",months:[1,2,3,4,5,6,7,8,9,10,11,12],day};
+  else if(ex.startsWith("w"))sched={type:"nthWeekday",n:+ex.slice(1),dow:3};
+  else sched={type:ex};
+  addFund({tk,name:$("a-name").value.trim()||tk,cat:$("a-cat").value,shares:parseFloat($("a-shares").value)||0,price,low,high,freq:fq,divs,
+    target:parseFloat($("a-target").value)||0,sched,lag:$("a-lag").checked?1:0,note:""});
+  $("addForm").reset();$("a-target").value=5;$("a-shares").value=0;$("a-day").value=15;$("a-months").value="3, 6, 9, 12";syncAddForm();
+  toast(tk+" added");
+});
+
+$("applyPlan").addEventListener("click",()=>{
+  SUGGEST.forEach(sg=>{if(!state.funds.some(f=>f.tk===sg.tk)){const c=structuredClone(sg);delete c.why;state.funds.push(c)}});
+  state.funds.forEach(f=>{if(PLAN_TARGETS[f.tk]!=null)f.target=PLAN_TARGETS[f.tk]});
+  save();buildEditors();render();toast("Diversified targets applied")});
+
 const today=new Date();$("buyDate").value=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
-$("buyDate").addEventListener("change",()=>{render()});
+$("buyDate").addEventListener("change",render);
 $("cash").addEventListener("input",()=>{cashTouched=true;render()});
 $("record").addEventListener("click",()=>{if(!plan)return;lastPurchase=state.funds.map(f=>f.shares);
   plan.buys.forEach((n,i)=>state.funds[i].shares+=n);save();cashTouched=false;$("undo").hidden=false;buildEditors();render();toast("Purchase recorded")});
-$("undo").addEventListener("click",()=>{if(!lastPurchase)return;lastPurchase.forEach((s,i)=>state.funds[i].shares=s);lastPurchase=null;save();$("undo").hidden=true;buildEditors();render();toast("Purchase undone")});
+$("undo").addEventListener("click",()=>{if(!lastPurchase)return;lastPurchase.forEach((s,i)=>{if(state.funds[i])state.funds[i].shares=s});lastPurchase=null;save();$("undo").hidden=true;buildEditors();render();toast("Purchase undone")});
 $("reset").addEventListener("click",e=>{const b=e.currentTarget;if(b.dataset.armed){state=structuredClone(SEED);save();bindSettings();buildEditors();cashTouched=false;render();b.textContent="Reset all data to seed values";delete b.dataset.armed;toast("Reset to seed values")}else{b.dataset.armed="1";b.textContent="Tap again to confirm reset"}});
 bindSettings();buildEditors();render();
 </script>
