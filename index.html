@@ -186,6 +186,10 @@ summary .num{font-weight:400;color:var(--muted);font-size:.85rem}
 .dl input{padding:6px 8px;text-align:right}
 .dl .src{font-size:.75rem;color:var(--muted)}
 .legend-row .hatch{width:12px;height:10px;border-radius:2px;border:1.5px dashed var(--muted);display:inline-block}
+.acct-btn{display:inline-flex;align-items:center;gap:7px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+.dot.ok{background:var(--good)} .dot.warn{background:var(--warn)}
+#acctWrap{padding-block:16px 0}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:.9rem;font-weight:600;z-index:5}
 @media (max-width:560px){
   .stats,.parts,.stats.four{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -199,6 +203,14 @@ summary .num{font-weight:400;color:var(--muted);font-size:.85rem}
 <body>
 
 
+<!-- ACCOUNT -->
+<div class="wrap" id="acctWrap" hidden>
+  <section class="panel" aria-label="Account" id="acctPanel">
+    <div class="sec-head"><h2>Account</h2><button type="button" class="ghost sm" id="acctClose">Close</button></div>
+    <div id="acctBody"></div>
+  </section>
+</div>
+
 <!-- ONBOARDING -->
 <div class="wrap" id="ob" hidden>
   <header style="display:flex;flex-direction:column;gap:8px">
@@ -209,6 +221,7 @@ summary .num{font-weight:400;color:var(--muted);font-size:.85rem}
 
   <div id="obStep1" style="display:flex;flex-direction:column;gap:16px">
     <p class="hint" style="font-size:.9rem">Bring in what you own now. You can mix methods: import a screenshot, then search for anything it missed.</p>
+    <p class="hint" id="obSignIn" style="font-size:.9rem" hidden>Already set up on another device? <button type="button" class="sm" data-acct="1">Sign in to load your portfolio</button></p>
     <div class="opts">
       <button type="button" class="opt" id="optImg"><b>Upload a screenshot</b><span>A photo of your brokerage's holdings or dividends screen</span></button>
       <button type="button" class="opt" id="optSearch"><b>Search and add</b><span>Pick each fund and type in your shares</span></button>
@@ -262,7 +275,7 @@ summary .num{font-weight:400;color:var(--muted);font-size:.85rem}
 <div class="wrap" id="app" hidden>
   <header class="top-bar">
     <div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">Monthly buy planner</span><h1>Dividend Buy Planner</h1></div>
-    <button type="button" class="sm" id="editSetup">Edit holdings &amp; goals</button>
+    <div class="btn-row"><button type="button" class="sm acct-btn" id="acctBtn" data-acct="1" hidden><span class="dot" id="acctDot"></span><span id="acctLbl">Sign in to sync</span></button><button type="button" class="sm" id="editSetup">Edit holdings &amp; goals</button></div>
   </header>
 
   <section class="panel" aria-label="Progress to goal">
@@ -408,7 +421,7 @@ summary .num{font-weight:400;color:var(--muted);font-size:.85rem}
   </section>
 </div>
 <div class="toast" id="toast" hidden></div>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 /* ---------- reference data ---------- */
 const CATS=[
@@ -478,7 +491,8 @@ function load(){
   if(!Array.isArray(s.history))s.history=[];
   if(!Array.isArray(s.divLog))s.divLog=[];
   return s}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+function save(){state.updatedAt=Date.now();saveLocal();try{schedulePush()}catch(e){}}
 let state=load(), cashTouched=false, lastPurchase=null, plan=null, rebalMode="new";
 
 /* ---------- helpers ---------- */
@@ -995,6 +1009,109 @@ $("imgFile").addEventListener("change",async e=>{const file=e.target.files[0];e.
     const res=await window.Tesseract.recognize(file,"eng");ingest(parseOcr(res.data.text||""),"in the image")}
   catch(err){setStatus("This page can't read images here. Search and add your holdings instead.",false)}});
 
+/* ---------- account sync ----------
+   Email-link sign-in through the same Supabase project as the recipe book. One row per person in
+   planner_state(user_id, data jsonb, updated_at); row-level security keeps it private. This browser keeps
+   a copy so the planner opens instantly and works offline; the newer copy wins when devices disagree. */
+const SB_URL="https://zuzpkjvxihkkijbfgybu.supabase.co",SB_KEY="sb_publishable_8P4jKfROavXf1g8zzMkwtg_b_rHkLsg",TABLE="planner_state";
+const OWNK="divplanner.owner",DIRTYK="divplanner.dirty",BAKK="divplanner.backup";
+let sb=null,user=null,syncState="",pushTimer=null,syncing=false,firstSync=true,tableMissing=false,acctMsg="";
+const inViewer=()=>!!(window.claude&&typeof window.claude.use==="function");
+const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}},lsSet=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
+function schedulePush(){if(!sb||!user)return;lsSet(DIRTYK,"1");clearTimeout(pushTimer);pushTimer=setTimeout(push,1200);setSync("pending")}
+async function push(){if(!sb||!user)return;clearTimeout(pushTimer);
+  try{const{error}=await sb.from(TABLE).upsert({user_id:user.id,data:state,updated_at:new Date(state.updatedAt||Date.now()).toISOString()},{onConflict:"user_id"});
+    if(error)throw error;lsSet(DIRTYK,null);setSync("ok")}
+  catch(e){handleErr(e)}}
+function handleErr(e){const m=(e&&(e.message||e.code))||"";
+  if(/planner_state|PGRST205|42P01|schema cache/i.test(m)){tableMissing=true;setSync("setup")}
+  else if(/JWT|401|403/i.test(m)){setSync("expired")}
+  else setSync("offline")}
+function adopt(data){state=data;
+  // run the same clean-up as a fresh load
+  saveLocal();state=load();saveLocal();showCurrent()}
+async function pull(){if(!sb||!user||syncing)return;syncing=true;setSync("syncing");
+  try{
+    const{data,error}=await sb.from(TABLE).select("data,updated_at").eq("user_id",user.id).maybeSingle();if(error)throw error;
+    tableMissing=false;
+    const remote=data&&data.data&&Array.isArray(data.data.funds)?data.data:null;
+    const remoteAt=remote?(Date.parse(data.updated_at)||remote.updatedAt||0):0,localAt=state.updatedAt||0;
+    const localHas=state.onboarded&&state.funds.length>0;
+    if(firstSync){firstSync=false;const owner=lsGet(OWNK);
+      if(owner&&owner!==user.id){ // another person's data on this device
+        if(remote)adopt(remote);else{state=fresh();saveLocal();showCurrent()}}
+      else if(!owner&&remote&&localHas&&JSON.stringify(remote.funds)!==JSON.stringify(state.funds)){
+        // first sign-in on a device that already had a portfolio: keep the newer one, back up the other
+        if(remoteAt>=localAt){lsSet(BAKK,JSON.stringify(state));adopt(remote);acctMsg="Loaded the portfolio saved in your account. This device's earlier portfolio is kept as a backup below."}
+        else{lsSet(BAKK,JSON.stringify(remote));acctMsg="This device's portfolio was newer, so it replaced the one in your account. The account's earlier copy is kept as a backup below.";await push()}}
+      else if(remote&&(!localHas||remoteAt>localAt))adopt(remote);
+      else if(localHas){await push()}
+      lsSet(OWNK,user.id)}
+    else if(lsGet(DIRTYK)){await push()}
+    else if(remote&&remoteAt>localAt){adopt(remote);toast("Updated from your other device")}
+    if(lsGet(DIRTYK))await push();
+    setSync("ok")}
+  catch(e){handleErr(e)}
+  finally{syncing=false;renderAcct()}}
+function initCloud(){
+  if(inViewer()){setSync("viewer");return}
+  if(!window.supabase||!window.supabase.createClient){setSync("unavailable");return}
+  sb=window.supabase.createClient(SB_URL,SB_KEY);
+  sb.auth.onAuthStateChange((ev,session)=>{const u=session&&session.user||null;
+    if((u&&u.id)!==(user&&user.id)){user=u;firstSync=true;setSync(u?"syncing":"");if(u){setTimeout(pull,0);if(ev==="SIGNED_IN"&&!$("acctWrap").hidden)closeAcct()}}
+    if(location.hash.includes("access_token")||location.hash.includes("error_description")){
+      if(/error_description=([^&]+)/.test(location.hash)){acctMsg=decodeURIComponent(RegExp.$1.replace(/\+/g," "))+". Request a new link.";openAcct()}
+      history.replaceState(null,"",location.pathname)}});
+  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")pull();else if(lsGet(DIRTYK))push()});
+  window.addEventListener("online",()=>pull());
+  setSync("")}
+function setSync(st){syncState=st;
+  const b=$("acctBtn"),dot=$("acctDot"),lbl=$("acctLbl");
+  b.hidden=st==="viewer"||st==="unavailable";$("obSignIn").hidden=!sb||!!user;
+  if(!user){dot.className="dot";lbl.textContent="Sign in to sync"}
+  else{const map={ok:["ok","Synced"],pending:["","Saving…"],syncing:["","Syncing…"],offline:["warn","Offline"],setup:["warn","Sync not set up"],expired:["warn","Sign in again"]};
+    const [c,t]=map[st]||["ok","Synced"];dot.className="dot "+c;lbl.textContent=t}
+  if(!$("acctWrap").hidden)renderAcct()}
+function openAcct(){$("acctWrap").hidden=false;renderAcct();window.scrollTo({top:0,behavior:"smooth"})}
+function closeAcct(){$("acctWrap").hidden=true;acctMsg=""}
+function renderAcct(){const body=$("acctBody");if($("acctWrap").hidden)return;
+  const bak=lsGet(BAKK);let html="";
+  if(acctMsg)html+=`<div class="callout"><span>${esc(acctMsg)}</span></div>`;
+  if(syncState==="viewer")html+=`<p>Sign-in works on the web version of the planner. Open <b>robbiestells.github.io/dividend-buy-planner</b> in your browser to sync across devices. Here, your data stays in this browser.</p>`;
+  else if(!sb)html+=`<p>Couldn't load the sync service. Check your connection and reload.</p>`;
+  else if(user){
+    const status={ok:"Your portfolio, purchases and dividend history are saved to your account.",pending:"Saving your latest change…",syncing:"Checking your account for changes…",
+      offline:"Can't reach your account right now. Changes are kept on this device and sync when you're back online.",
+      setup:"Signed in, but the planner's table hasn't been created in Supabase yet, so changes stay on this device for now. Run supabase/planner.sql in the SQL Editor (steps in the README), then tap Sync now.",
+      expired:"Your sign-in expired. Sign out and sign in again to keep syncing."}[syncState]||"";
+    html+=`<p>Signed in as <b>${esc(user.email||"")}</b>.</p><p class="hint" style="font-size:.88rem">${status}</p>
+      <div class="btn-row"><button type="button" class="sm" id="syncNow">Sync now</button><button type="button" class="danger sm" id="signOut">Sign out</button></div>
+      <p class="hint">Signing out removes the planner's data from this browser. It stays in your account.</p>`}
+  else html+=`<form id="signForm" novalidate style="display:flex;flex-direction:column;gap:10px">
+      <p style="font-size:.92rem">Sign in to keep your holdings, purchases and dividend history in sync on every device.</p>
+      <label for="emailIn">Email<input id="emailIn" type="email" autocomplete="email" placeholder="you@example.com" style="font-family:var(--f-body)"></label>
+      <p class="hint">We'll email you a sign-in link. Open it on this device to finish. If this browser already has a portfolio, it moves into your account. Uses the same account as Mise en Place.</p>
+      <div id="signStatus"></div><div class="btn-row"><button type="submit" class="primary" id="signBtn">Email me a sign-in link</button></div></form>`;
+  if(bak&&sb){let when="";try{const b=JSON.parse(bak);when=b.updatedAt?new Date(b.updatedAt).toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"";
+    html+=`<div style="border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:8px"><b style="font-size:.92rem">Backup portfolio</b><p class="hint">${(b.funds||[]).length} holdings${when?", last changed "+when:""}. Restore it to replace what's shown now.</p>
+      <div class="btn-row"><button type="button" class="sm" id="bakRestore">Restore backup</button><button type="button" class="ghost sm" id="bakDrop">Discard backup</button></div></div>`}catch(e){}}
+  body.innerHTML=html;
+  const f=$("signForm");if(f)f.addEventListener("submit",async e=>{e.preventDefault();const em=$("emailIn").value.trim(),st=$("signStatus"),btn=$("signBtn");
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){st.innerHTML=`<p class="err">Enter your email address.</p>`;return}
+    btn.disabled=true;st.innerHTML=`<div class="status"><span class="spin" aria-hidden="true"></span><span>Sending…</span></div>`;
+    try{const{error}=await sb.auth.signInWithOtp({email:em,options:{emailRedirectTo:location.origin+location.pathname}});if(error)throw error;
+      st.innerHTML=`<p class="hint" style="font-size:.88rem">Check <b>${esc(em)}</b> for a sign-in link. It can take a minute; look in spam if it doesn't arrive.</p>`}
+    catch(x){st.innerHTML=`<p class="err">${/rate|seconds/i.test(x&&x.message||"")?"Too many sign-in emails. Wait a minute, then try again.":"Couldn't send the email. Check the address and try again."}</p>`;btn.disabled=false}});
+  if($("syncNow"))$("syncNow").onclick=()=>{firstSync=false;pull()};
+  if($("signOut"))$("signOut").onclick=async e=>{const b=e.currentTarget;if(!b.dataset.armed){b.dataset.armed="1";b.textContent="Tap again to sign out";return}
+    if(lsGet(DIRTYK))await push();await sb.auth.signOut().catch(()=>{});user=null;[OWNK,DIRTYK,BAKK].forEach(k=>lsSet(k,null));
+    state=fresh();saveLocal();closeAcct();setSync("");obStart(false);toast("Signed out")};
+  if($("bakRestore"))$("bakRestore").onclick=()=>{const b=lsGet(BAKK);lsSet(BAKK,JSON.stringify(state));state=JSON.parse(b);saveLocal();state=load();save();acctMsg="Backup restored. What was showing before is now the backup.";showCurrent();renderAcct()};
+  if($("bakDrop"))$("bakDrop").onclick=()=>{lsSet(BAKK,null);acctMsg="";renderAcct()};
+}
+document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("[data-acct]");if(t){$("acctWrap").hidden?openAcct():closeAcct()}});
+$("acctClose").addEventListener("click",closeAcct);
+
 /* ---------- main wiring ---------- */
 function bindSettings(){["wTR","wDiv","wBal","goal","contrib","drift"].forEach(k=>{const el=$(k);el.value=state.settings[k];
   el.onchange=()=>{const v=parseFloat(el.value);if(!isNaN(v)){state.settings[k]=v;save();render()}}})}
@@ -1015,11 +1132,13 @@ $("record").addEventListener("click",()=>{if(!plan)return;const buyDate=parseDat
   snapshot();save();cashTouched=false;$("undo").hidden=false;buildEditors();render();toast("Purchase recorded")});
 $("undo").addEventListener("click",()=>{if(!lastPurchase)return;lastPurchase.funds.forEach((p,i)=>{if(state.funds[i])Object.assign(state.funds[i],p)});state.divLog=lastPurchase.divLog;lastPurchase=null;snapshot();save();$("undo").hidden=true;buildEditors();render();toast("Purchase undone")});
 $("reset").addEventListener("click",e=>{const b=e.currentTarget;if(!b.dataset.armed){b.dataset.armed="1";b.textContent="Tap again to erase everything";return}
-  state=fresh();save();delete b.dataset.armed;b.textContent="Erase all data and start over";obStart(false)});
+  state=fresh();save();delete b.dataset.armed;b.textContent="Erase all data and start over";obStart(false);toast(user?"Erased here and in your account":"Erased")});
 let rz;window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{if(!$("app").hidden)render()},150)});
 
-if(state.onboarded&&state.funds.length){$("app").hidden=false;bindSettings();buildEditors();refreshMainTargets();render()}
-else obStart(false);
+function showApp(){$("ob").hidden=true;$("app").hidden=false;cashTouched=false;bindSettings();buildEditors();refreshMainTargets();render()}
+function showCurrent(){if(state.onboarded&&state.funds.length)showApp();else obStart(false)}
+showCurrent();
+initCloud();
 </script>
 
 </body>
