@@ -293,7 +293,7 @@ summary:hover{background:var(--panel2)}
 
   <div id="obStep1" style="display:flex;flex-direction:column;gap:16px">
     <p class="hint" style="font-size:.9rem">Bring in what you own now. You can mix methods: import a screenshot, then search for anything it missed.</p>
-    <p class="hint" id="obSignIn" style="font-size:.9rem" hidden>Already set up on another device? <button type="button" class="sm" data-acct="1">Sign in to load your portfolio</button></p>
+    <div class="callout ok" id="obSync" hidden></div>
     <div class="opts">
       <button type="button" class="opt" id="optImg"><b>Upload a screenshot</b><span>A photo of your brokerage's holdings or dividends screen</span></button>
       <button type="button" class="opt" id="optSearch"><b>Search and add</b><span>Pick each fund and type in your shares</span></button>
@@ -1262,7 +1262,7 @@ function mountAll(){
    a copy so the planner opens instantly and works offline; the newer copy wins when devices disagree. */
 const SB_URL="https://zuzpkjvxihkkijbfgybu.supabase.co",SB_KEY="sb_publishable_8P4jKfROavXf1g8zzMkwtg_b_rHkLsg",TABLE="planner_state";
 const OWNK="divplanner.owner",DIRTYK="divplanner.dirty",BAKK="divplanner.backup";
-let sb=null,user=null,syncState="",pushTimer=null,syncing=false,firstSync=true,tableMissing=false,acctMsg="";
+let remoteHas=null,sb=null,user=null,syncState="",pushTimer=null,syncing=false,firstSync=true,tableMissing=false,acctMsg="";
 const inViewer=()=>!!(window.claude&&typeof window.claude.use==="function");
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}},lsSet=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
 function schedulePush(){if(!sb||!user)return;lsSet(DIRTYK,"1");clearTimeout(pushTimer);pushTimer=setTimeout(push,1200);setSync("pending")}
@@ -1281,7 +1281,7 @@ async function pull(){if(!sb||!user||syncing)return;syncing=true;setSync("syncin
   try{
     const{data,error}=await sb.from(TABLE).select("data,updated_at").eq("user_id",user.id).maybeSingle();if(error)throw error;
     tableMissing=false;
-    const remote=data&&data.data&&Array.isArray(data.data.funds)?data.data:null;
+    const remote=data&&data.data&&Array.isArray(data.data.funds)?data.data:null;remoteHas=!!(remote&&remote.onboarded&&remote.funds.length);
     const remoteAt=remote?(Date.parse(data.updated_at)||remote.updatedAt||0):0,localAt=state.updatedAt||0;
     const localHas=state.onboarded&&state.funds.length>0;
     if(firstSync){firstSync=false;const owner=lsGet(OWNK);
@@ -1314,11 +1314,23 @@ function initCloud(){
   setSync("")}
 function setSync(st){syncState=st;
   const b=$("acctBtn"),dot=$("acctDot"),lbl=$("acctLbl");
-  b.hidden=st==="viewer"||st==="unavailable";$("obSignIn").hidden=!sb||!!user;
+  b.hidden=st==="viewer"||st==="unavailable";renderObSync();
   if(!user){dot.className="dot";lbl.textContent="Sign in to sync"}
   else{const map={ok:["ok","Synced"],pending:["","Saving…"],syncing:["","Syncing…"],offline:["warn","Offline"],setup:["warn","Sync not set up"],expired:["warn","Sign in again"]};
     const [c,t]=map[st]||["ok","Synced"];dot.className="dot "+c;lbl.textContent=t}
   if(!$("acctWrap").hidden)renderAcct()}
+function renderObSync(){const el=$("obSync");if(!el)return;
+  if(syncState==="viewer"){el.hidden=false;el.innerHTML=`<b>Set up on another device?</b><span>Loading your portfolio from another device works on the web version: <b>robbiestells.github.io/dividend-buy-planner</b>. Sign in there to sync.</span>`;return}
+  if(!sb){el.hidden=true;return}
+  el.hidden=false;
+  if(!user){el.innerHTML=`<b>Set up on another device?</b><span>Sign in with the same email to load your portfolio here instead of starting over.</span><div class="btn-row" style="margin-top:8px"><button type="button" class="primary sm" data-acct="1">Sign in to load your portfolio</button></div>`;return}
+  const msg=syncState==="syncing"?"Checking your account…":
+    syncState==="setup"?"Your account's storage isn't set up yet, so there's nothing to load. Run the setup SQL in Supabase, then try again.":
+    syncState==="offline"?"Can't reach your account right now. Check your connection and try again.":
+    remoteHas===false?"Your account doesn't have a saved portfolio yet. On the device where you set it up, open the planner, open the account panel and tap Sync now. Then load it here.":
+    "Load the portfolio saved in your account.";
+  el.innerHTML=`<b>Signed in as ${esc(user.email||"you")}</b><span>${msg}</span><div class="btn-row" style="margin-top:8px"><button type="button" class="primary sm" id="obLoad"${syncState==="syncing"?" disabled":""}>${syncState==="syncing"?"Checking…":"Load from my account"}</button></div>`;
+  $("obLoad").onclick=async()=>{firstSync=true;await pull();if(remoteHas)toast("Portfolio loaded from your account");else renderObSync()}}
 function openAcct(){$("acctWrap").hidden=false;renderAcct();window.scrollTo({top:0,behavior:"smooth"})}
 function closeAcct(){$("acctWrap").hidden=true;acctMsg=""}
 function renderAcct(){const body=$("acctBody");if($("acctWrap").hidden)return;
