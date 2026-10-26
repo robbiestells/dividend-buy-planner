@@ -310,7 +310,8 @@ summary .num{font-weight:400;color:var(--muted);font-size:.85rem}
     <h2>Purchase day</h2>
     <div class="fields">
       <label for="buyDate">Buy date<input type="date" id="buyDate"></label>
-      <label for="cash">Cash to invest ($)<input type="number" id="cash" step="0.01" min="0" inputmode="decimal"></label>
+      <label for="monthly">I invest each month ($)<input type="number" id="monthly" step="25" min="0" inputmode="decimal"></label>
+      <label for="cash" class="full">Cash to invest this time ($)<input type="number" id="cash" step="0.01" min="0" inputmode="decimal"></label>
     </div>
     <div class="hint" id="cashNote"></div>
   </section>
@@ -389,7 +390,7 @@ summary .num{font-weight:400;color:var(--muted);font-size:.85rem}
           <label for="wDiv">Monthly dividend weight (%)<input type="number" id="wDiv" min="0" max="100"></label>
           <label for="wBal">Balance to targets weight (%)<input type="number" id="wBal" min="0" max="100"></label>
           <label for="goal">Monthly income goal ($)<input type="number" id="goal" min="0"></label>
-          <label for="contrib">New money each month ($)<input type="number" id="contrib" min="0"></label>
+          <label for="contrib">I invest each month ($)<input type="number" id="contrib" min="0"></label>
           <label for="drift">Distribution change per year (%)<input type="number" id="drift" step="0.5"></label>
         </div>
         <p class="hint">Weights are normalized, so they don't need to add to 100. A negative distribution change models the slow NAV erosion common in option-income funds.</p>
@@ -653,8 +654,10 @@ function render(){
   drawGoal();
 
   const pay=monthPayouts(buyDate),divM=pay.reduce((a,b)=>a+b,0);
+  if(document.activeElement!==$("monthly"))$("monthly").value=s.contrib;
   if(!cashTouched)$("cash").value=(s.contrib+divM).toFixed(2);
-  $("cashNote").textContent=`Suggested: ${usd(s.contrib)} new money + about ${usd(divM,2)} in distributions paid in ${buyDate.toLocaleDateString("en-US",{month:"long"})}${cashTouched?". You've entered your own amount.":"."}`;
+  $("cashNote").innerHTML=`Suggested: your ${usd(s.contrib)} monthly investment + about ${usd(divM,2)} in distributions paid in ${buyDate.toLocaleDateString("en-US",{month:"long"})}.${cashTouched?` You've entered your own amount. <button type="button" class="ghost sm" id="cashReset">Use suggested</button>`:" Changing your monthly amount also updates the goal projection."}`;
+  if(cashTouched)$("cashReset").onclick=()=>{cashTouched=false;render()};
   const cash=parseFloat($("cash").value)||0;
 
   const h0=state.funds.map(f=>f.shares);
@@ -1002,6 +1005,7 @@ $("mSell").addEventListener("click",()=>{rebalMode="sell";$("mSell").setAttribut
 const today=new Date();$("buyDate").value=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
 $("buyDate").addEventListener("change",render);
 $("cash").addEventListener("input",()=>{cashTouched=true;render()});
+$("monthly").addEventListener("change",()=>{const v=parseFloat($("monthly").value);if(v>=0){state.settings.contrib=v;$("contrib").value=v;save();render();toast(`Monthly investment set to ${usd(v)}`)}else $("monthly").value=state.settings.contrib});
 $("record").addEventListener("click",()=>{if(!plan)return;const buyDate=parseDate($("buyDate").value);
   lastPurchase={funds:state.funds.map(f=>({shares:f.shares,avgCost:f.avgCost,collected:f.collected})),divLog:structuredClone(state.divLog)};
   const pay=monthPayouts(buyDate),mk=monthKey(buyDate),fresh=!state.divLog.some(e=>e.m===mk);
