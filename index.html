@@ -181,6 +181,11 @@ summary .num{font-weight:400;color:var(--muted);font-size:.85rem}
 .spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--accent);display:inline-block}
 @media (prefers-reduced-motion:no-preference){.spin{animation:sp 0.8s linear infinite}.bar>i{transition:width .4s ease}}
 @keyframes sp{to{transform:rotate(360deg)}}
+.dlog{display:flex;flex-direction:column;gap:6px}
+.dl{display:grid;grid-template-columns:84px 1fr 110px auto;gap:10px;align-items:center;font-size:.88rem}
+.dl input{padding:6px 8px;text-align:right}
+.dl .src{font-size:.75rem;color:var(--muted)}
+.legend-row .hatch{width:12px;height:10px;border-radius:2px;border:1.5px dashed var(--muted);display:inline-block}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:.9rem;font-weight:600;z-index:5}
 @media (max-width:560px){
   .stats,.parts,.stats.four{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -274,6 +279,31 @@ summary .num{font-weight:400;color:var(--muted);font-size:.85rem}
     <div class="chart" id="goalChart"></div>
     <div class="legend-row"><span><i class="ln" style="background:var(--s1)"></i>Projected monthly income</span><span><i class="sw" style="background:var(--s1);border-radius:50%;width:8px;height:8px"></i>Recorded</span><span><i class="dash"></i>Goal</span></div>
     <div class="hint" id="etaNote"></div>
+  </section>
+
+  <section class="panel" aria-label="Dividend income">
+    <div class="sec-head"><h2>Dividend income</h2><span class="hint">Received each month, then expected</span></div>
+    <div class="stats four">
+      <div class="stat"><span class="eyebrow">Last month</span><b id="dvLast">–</b></div>
+      <div class="stat"><span class="eyebrow">Past 12 months</span><b id="dvYear">–</b></div>
+      <div class="stat"><span class="eyebrow">Best month</span><b id="dvBest">–</b></div>
+      <div class="stat"><span class="eyebrow">Expected next</span><b id="dvNext">–</b></div>
+    </div>
+    <div class="chart" id="divChart"></div>
+    <div class="legend-row" id="divLegend"></div>
+    <details>
+      <summary>Log or correct monthly dividends <span class="num" id="dvCount"></span></summary>
+      <div class="ed">
+        <p class="hint">Each recorded purchase logs that month's estimated payouts. Type the actual amount from your broker to replace an estimate, or add past months to fill in history.</p>
+        <div class="fields three">
+          <label for="dvMonth">Month<input id="dvMonth" type="month"></label>
+          <label for="dvAmt">Amount received ($)<input id="dvAmt" type="number" step="0.01" min="0" inputmode="decimal"></label>
+          <div style="display:flex;align-items:flex-end"><button type="button" class="sm" id="dvAdd" style="width:100%">Save month</button></div>
+        </div>
+        <div class="err" id="dvErr" hidden></div>
+        <div class="dlog" id="dvList"></div>
+      </div>
+    </details>
   </section>
 
   <section class="panel" aria-label="Purchase day">
@@ -427,7 +457,7 @@ const PRESETS={tr:[60,25,15],bal:[45,35,20],inc:[30,55,15]};
 
 /* ---------- state ---------- */
 const KEY="divplanner.v1";
-const fresh=()=>({v:2,onboarded:false,settings:{wTR:60,wDiv:25,wBal:15,goal:4000,contrib:500,drift:0,pri:"tr"},catTargets:{...SUGGESTED_MIX},funds:[],history:[]});
+const fresh=()=>({v:2,onboarded:false,settings:{wTR:60,wDiv:25,wBal:15,goal:4000,contrib:500,drift:0,pri:"tr"},catTargets:{...SUGGESTED_MIX},funds:[],history:[],divLog:[]});
 function fromCatalog(tk){const c=CATALOG.find(x=>x.tk===tk);if(!c)return null;const f=structuredClone(c);delete f.why;
   return Object.assign({shares:0,avgCost:null,collected:0,lag:0,note:""},f)}
 function load(){
@@ -445,6 +475,7 @@ function load(){
   s.settings=Object.assign(fresh().settings,s.settings||{});
   CATS.forEach(c=>{if(s.catTargets[c.id]==null)s.catTargets[c.id]=0});
   if(!Array.isArray(s.history))s.history=[];
+  if(!Array.isArray(s.divLog))s.divLog=[];
   return s}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
 let state=load(), cashTouched=false, lastPurchase=null, plan=null, rebalMode="new";
@@ -662,6 +693,7 @@ function render(){
 
   renderRebalance(buyDate,h0);
   renderTR();
+  renderDivs(buyDate);
   renderSuggest();
 }
 
@@ -734,6 +766,74 @@ function addHolding(tk,name){tk=tk.toUpperCase();if(state.funds.some(f=>f.tk===t
   state.funds.push(f);save();buildEditors();render();
   if(!usable(f)){const d=$("editors").children[state.funds.length-1];if(d){d.open=true;d.scrollIntoView({block:"center",behavior:"smooth"})}toast(tk+" added. Enter its price and payouts.")}
   else toast(tk+" added as a candidate")}
+
+/* ---------- dividend history ---------- */
+const mAdd=(m,k)=>{const [y,mo]=m.split("-").map(Number);return monthKey(new Date(y,mo-1+k,1))};
+const mLabel=(m,o)=>{const [y,mo]=m.split("-").map(Number);return new Date(y,mo-1,1).toLocaleDateString("en-US",o||{month:"short",year:"numeric"})};
+function entryTotal(e){const est=Object.values(e.est||{}).reduce((a,b)=>a+b,0);return e.actual!=null?e.actual:est}
+function entrySectors(e,total){const by={};const tkCat=tk=>{const f=state.funds.find(x=>x.tk===tk)||CATALOG.find(x=>x.tk===tk);return f?f.cat:"other"};
+  const est=Object.entries(e.est||{});const estT=est.reduce((a,[,v])=>a+v,0);
+  if(!estT)return total>0?[{cat:null,v:total}]:[];
+  est.forEach(([tk,v])=>{const c=tkCat(tk);by[c]=(by[c]||0)+v*total/estT});
+  return CATS.filter(c=>by[c.id]>0).map(c=>({cat:c.id,v:by[c.id]}))}
+function expectedFor(m){const [y,mo]=m.split("-").map(Number);const pay=monthPayouts(new Date(y,mo-1,15));const est={};
+  state.funds.forEach((f,i)=>{if(pay[i]>0)est[f.tk]=pay[i]});return {m,est,actual:null,expected:true}}
+function renderDivs(){
+  const cur=monthKey(new Date()),log=state.divLog.filter(e=>e.m<=cur);
+  const byM=Object.fromEntries(log.map(e=>[e.m,e]));
+  const first=log.length?(log[0].m<mAdd(cur,-23)?mAdd(cur,-23):log[0].m):cur;
+  const months=[];for(let m=first;m<=mAdd(cur,6);m=mAdd(m,1))months.push(m);
+  const bars=months.map(m=>{const e=byM[m];if(e)return {m,e,kind:e.actual!=null?"entered":"recorded"};
+    if(m>=cur)return {m,e:expectedFor(m),kind:"expected"};return {m,e:null,kind:"none"}});
+  bars.forEach(b=>{b.total=b.e?entryTotal(b.e):0;b.segs=b.e?entrySectors(b.e,b.total):[]});
+  const past=bars.filter(b=>b.kind!=="expected"&&b.kind!=="none");
+  const lastM=mAdd(cur,-1),last=byM[lastM]||byM[cur];
+  $("dvLast").textContent=last?usd(entryTotal(last)):"–";
+  const yr=log.filter(e=>e.m>mAdd(cur,-12)).reduce((a,e)=>a+entryTotal(e),0);$("dvYear").textContent=log.length?usd(yr):"–";
+  const best=past.slice().sort((a,b)=>b.total-a.total)[0];$("dvBest").textContent=best?`${usd(best.total)}`:"–";
+  const nx=bars.find(b=>b.kind==="expected"&&b.m>cur)||bars.find(b=>b.kind==="expected");$("dvNext").textContent=nx?usd(nx.total):"–";
+  drawDivs(bars,cur);
+  const usedCats=new Set();bars.forEach(b=>b.segs.forEach(s=>usedCats.add(s.cat)));
+  $("divLegend").innerHTML=CATS.filter(c=>usedCats.has(c.id)).map(c=>`<span>${sw(c.id)}${c.label}</span>`).join("")+(usedCats.has(null)?`<span><i class="sw" style="background:var(--muted)"></i>Not broken down</span>`:"")+`<span><i class="hatch"></i>Expected</span>`;
+  $("dvCount").textContent=state.divLog.length?`${state.divLog.length} month${state.divLog.length>1?"s":""}`:"";
+  $("dvList").innerHTML=state.divLog.slice().reverse().map(e=>{const est=Object.values(e.est||{}).reduce((a,b)=>a+b,0);
+    return `<div class="dl"><b class="num">${mLabel(e.m)}</b><span class="src">${e.actual!=null?(est?`entered · est. was ${usd(est,2)}`:"entered"):"estimated from holdings"}</span>
+      <input type="number" step="0.01" min="0" data-m="${e.m}" value="${e.actual!=null?e.actual:""}" placeholder="${est.toFixed(2)}" aria-label="Actual dividends for ${mLabel(e.m)}">
+      <button type="button" class="ghost sm" data-dm="${e.m}" aria-label="Remove ${mLabel(e.m)}">Remove</button></div>`}).join("")||`<p class="hint">No months logged yet.</p>`;
+  $("dvList").querySelectorAll("input").forEach(el=>el.addEventListener("change",()=>{const e=state.divLog.find(x=>x.m===el.dataset.m);const v=parseFloat(el.value);
+    e.actual=el.value===""||isNaN(v)?null:Math.max(0,v);if(e.actual==null&&!Object.keys(e.est||{}).length)state.divLog=state.divLog.filter(x=>x!==e);save();render()}));
+  $("dvList").querySelectorAll("[data-dm]").forEach(b=>b.addEventListener("click",()=>{if(!b.dataset.armed){b.dataset.armed="1";b.textContent="Confirm";return}
+    state.divLog=state.divLog.filter(x=>x.m!==b.dataset.dm);save();render();toast("Month removed")}));
+}
+function drawDivs(bars,cur){
+  const box=$("divChart"),W=Math.max(300,box.clientWidth||600),H=200,L=48,R=8,T=12,B=24;
+  const max=Math.max(10,...bars.map(b=>b.total))*1.08,step=niceStep(max/4);
+  const n=bars.length,slot=(W-L-R)/n,bw=Math.max(3,Math.min(26,slot-4));
+  const x=i=>L+i*slot+(slot-bw)/2,y=v=>T+(1-v/max)*(H-T-B);
+  let g=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Dividends received each month">`;
+  for(let v=0;v<=max;v+=step)g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">${v>=1000?"$"+(v/1000).toFixed(v%1000?1:0)+"k":"$"+v}</text>`;
+  const every=Math.ceil(n/(W<480?6:10));
+  bars.forEach((b,i)=>{let top=y(0);const exp=b.kind==="expected";
+    b.segs.forEach((s,k)=>{const h=y(0)-y(s.v);if(h<.5)return;const yy=top-h;const last=k===b.segs.length-1;
+      const fill=s.cat?cvar(s.cat):"var(--muted)";
+      g+=last?`<path d="M${x(i)},${top} V${yy+Math.min(4,h)} Q${x(i)},${yy} ${x(i)+Math.min(4,h)},${yy} H${x(i)+bw-Math.min(4,h)} Q${x(i)+bw},${yy} ${x(i)+bw},${yy+Math.min(4,h)} V${top} Z" fill="${fill}" opacity="${exp?.3:1}"/>`
+        :`<rect x="${x(i)}" y="${yy}" width="${bw}" height="${h}" fill="${fill}" opacity="${exp?.3:1}"/>`;
+      top=yy-(last?0:2)});
+    if(exp&&b.total>0)g+=`<rect x="${x(i)+.75}" y="${y(b.total)+.75}" width="${bw-1.5}" height="${Math.max(0,y(0)-y(b.total)-1.5)}" rx="3" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 2"/>`;
+    if(b.m===cur)g+=`<text x="${x(i)+bw/2}" y="${H-6}" text-anchor="middle" class="lbl" style="font-size:11px">Now</text>`;
+    else if(i%every===0)g+=`<text x="${x(i)+bw/2}" y="${H-6}" text-anchor="middle">${mLabel(b.m,{month:"short"})}${b.m.endsWith("-01")||i===0?" "+b.m.slice(2,4):""}</text>`;
+    const parts=b.segs.slice().sort((a,c)=>c.v-a.v).slice(0,3).map(s=>`${s.cat?catOf(s.cat).label:"Not broken down"} ${usd(s.v)}`).join(" · ");
+    const kind={recorded:"Estimated at purchase",entered:"Entered",expected:"Expected",none:"Nothing logged"}[b.kind];
+    g+=`<rect x="${L+i*slot}" y="${T}" width="${slot}" height="${H-T-B}" fill="transparent" data-tip="${mLabel(b.m)} · ${kind} <b>${usd(b.total,2)}</b>${parts?"<br>"+esc(parts):""}"/>`});
+  g+=`<line x1="${L}" x2="${W-R}" y1="${y(0)}" y2="${y(0)}" stroke="var(--muted)"/></svg>`;
+  box.innerHTML=g;attachTips(box)}
+$("dvMonth").value=monthKey(new Date(new Date().getFullYear(),new Date().getMonth()-1,1));
+$("dvAdd").addEventListener("click",()=>{const m=$("dvMonth").value,v=parseFloat($("dvAmt").value),err=$("dvErr");
+  if(!/^\d{4}-\d{2}$/.test(m)){err.textContent="Pick a month.";err.hidden=false;return}
+  if(m>monthKey(new Date())){err.textContent="Pick this month or an earlier one.";err.hidden=false;return}
+  if(!(v>=0)||$("dvAmt").value===""){err.textContent="Enter the amount you received that month.";err.hidden=false;return}
+  err.hidden=true;let e=state.divLog.find(x=>x.m===m);if(!e){e={m,est:{},actual:null};state.divLog.push(e);state.divLog.sort((a,b)=>a.m<b.m?-1:1)}
+  e.actual=v;$("dvAmt").value="";save();render();toast(`${mLabel(m)} saved`)});
 
 /* ---------- fund editors ---------- */
 function fundFields(f,i,pfx){const id=k=>`${pfx}-${k}-${i}`;
@@ -903,12 +1003,13 @@ const today=new Date();$("buyDate").value=`${today.getFullYear()}-${String(today
 $("buyDate").addEventListener("change",render);
 $("cash").addEventListener("input",()=>{cashTouched=true;render()});
 $("record").addEventListener("click",()=>{if(!plan)return;const buyDate=parseDate($("buyDate").value);
-  lastPurchase=state.funds.map(f=>({shares:f.shares,avgCost:f.avgCost,collected:f.collected}));
-  const pay=monthPayouts(buyDate);
-  state.funds.forEach((f,i)=>{const n=plan.buys[i];f.collected=(+f.collected||0)+pay[i];
+  lastPurchase={funds:state.funds.map(f=>({shares:f.shares,avgCost:f.avgCost,collected:f.collected})),divLog:structuredClone(state.divLog)};
+  const pay=monthPayouts(buyDate),mk=monthKey(buyDate),fresh=!state.divLog.some(e=>e.m===mk);
+  if(fresh){const est={};state.funds.forEach((f,i)=>{if(pay[i]>0)est[f.tk]=+pay[i].toFixed(2)});state.divLog.push({m:mk,est,actual:null});state.divLog.sort((a,b)=>a.m<b.m?-1:1)}
+  state.funds.forEach((f,i)=>{const n=plan.buys[i];if(fresh)f.collected=(+f.collected||0)+pay[i];
     if(n>0){if(f.avgCost>0)f.avgCost=+((f.avgCost*f.shares+n*f.price)/(f.shares+n)).toFixed(4);else if(f.shares===0)f.avgCost=f.price;f.shares+=n}});
   snapshot();save();cashTouched=false;$("undo").hidden=false;buildEditors();render();toast("Purchase recorded")});
-$("undo").addEventListener("click",()=>{if(!lastPurchase)return;lastPurchase.forEach((p,i)=>{if(state.funds[i])Object.assign(state.funds[i],p)});lastPurchase=null;snapshot();save();$("undo").hidden=true;buildEditors();render();toast("Purchase undone")});
+$("undo").addEventListener("click",()=>{if(!lastPurchase)return;lastPurchase.funds.forEach((p,i)=>{if(state.funds[i])Object.assign(state.funds[i],p)});state.divLog=lastPurchase.divLog;lastPurchase=null;snapshot();save();$("undo").hidden=true;buildEditors();render();toast("Purchase undone")});
 $("reset").addEventListener("click",e=>{const b=e.currentTarget;if(!b.dataset.armed){b.dataset.armed="1";b.textContent="Tap again to erase everything";return}
   state=fresh();save();delete b.dataset.armed;b.textContent="Erase all data and start over";obStart(false)});
 let rz;window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{if(!$("app").hidden)render()},150)});
