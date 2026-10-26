@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#12132b">
 <title>Dividend Buy Planner</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAhCAYAAADOHBvaAAAAmUlEQVR42mNkwAG4uGX+M1ABfPv6hBGbOBPDAIEBs5gRV/CuK/0AF3f3NCDJ0J3bL8DZQd0CWIN9BAY1UcEr7Ydd99NNZAf7yAtqFpwyyMFLRJAOGR8PwqDGEbzIqRQZkFrIjAY1weAlNUhHg5qkoEYO3tFUTdOgJiZISU35o0FNUvk8mqqp3q4mNVUjg9F2NdagHu0t0hIAAKbJOZHb8rEDAAAAAElFTkSuQmCC">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAACOklEQVR42u3dsW3CUBCA4Thy4Q4EJSPQZIsoTQp2YQp2oUiDskWWSA+dO9JHaXIy1t3z9/VPgPl1cnGyu812f3+CRjy7BAgaBA2CBkEjaBA0CBoEDYJG0CBoSKOv/gPG8eZfnNAwrExoEDQIGgSNoEHQIGgQNAgaQYOgQdAgaPgtzbZddGvufLyGzr2+vTT9x35evkLnDqfY52XZ0jOhccsBggZBg6ARNAgaBA2CBkEjaBA0CBoeopv6xZtltuZ27/Ne6e+PEkHEt/TWoXNTb+mZ0LjlAEGDoEHQCBoEDYIGQYOgETQIGgQND1H+TbLhrbki22+Y0AgaBA2CBkGDoBE0CBoEDYIGQSNoEDQkUH/bbuatueiz36Jaf+OtCQ2CRtAgaBA0CBoEjaBB0CBoEDQIGkFDCf1Sf3h0a872mwkNggZBI2iXAEGDoEHQIGgEDYIGQYOgQdAs0GK37aJbc55tZ0KDoEHQCNolQNAgaBA0CBpBg6BB0CBoEDQL1LsE/zP39ptn8JnQuOUAQYOgQdAgaAQNggZBg6BB0AgaBA0JeJNscp5tZ0IjaBA0CBoEDYJG0CBoEDQIGgSNoEHQkEC32e7vGb7ION5C587H66zfs8qz7aIOp3Xo3DCsTGgQNAgaQYOgQdAgaBA0ggZBg6BB0CBo2pVm2y4quqXH37JszZnQIGgEDYIGQYOgETQIGgQNggZBI2gQNKRS/k2y1bfDMKFB0AgaBA2CBkGDoBE0CBoEDYIGQdOqHzxwPdlWS4HCAAAAAElFTkSuQmCC">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=Pixelify+Sans:wght@400;500;600;700&family=VT323&display=swap">
 <style>
@@ -247,6 +249,30 @@ summary:hover{background:var(--panel2)}
 .dl input{padding:5px 8px;text-align:right}
 .dl .src{font-size:.8rem;color:var(--muted)}
 
+/* world-map tab bar: sticky under the title on wide screens, a game HUD along the bottom on phones */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.tabbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:8;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;background:var(--frame);padding:4px;
+  box-shadow:0 0 0 4px var(--frame),8px 8px 0 0 rgba(0,0,0,.35),0 -12px 0 8px var(--bg)}
+.tab{display:flex;align-items:center;justify-content:center;gap:9px;padding:10px 6px;background:var(--surface);box-shadow:inset 0 3px 0 var(--hi),inset 0 -3px 0 rgba(0,0,0,.3);
+  font-family:var(--f-label);font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;position:relative;min-width:0}
+.tab+.tab{margin-left:4px}
+.tab canvas{width:24px;height:24px;image-rendering:pixelated;flex:none}
+.tab:hover{background:var(--panel2);color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--gold);color:var(--coin-ink);box-shadow:inset 0 3px 0 var(--gold-hi),inset 0 -3px 0 var(--gold-dk)}
+.tab:active{transform:translate(2px,2px)}
+.tab .badge{position:absolute;top:-6px;right:-4px;min-width:20px;height:20px;padding:0 5px;background:var(--bad);color:var(--ink);font-family:var(--f-num);font-size:1.05rem;line-height:20px;text-align:center;box-shadow:0 0 0 2px var(--frame)}
+.tab .badge.good{background:var(--good);color:var(--frame)}
+.tab-off{display:none!important}
+.tab-intro{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:-8px}
+.tab-intro .eyebrow{color:var(--gold)}
+@media (max-width:640px){
+  .tabbar{position:fixed;top:auto;bottom:0;left:0;right:0;padding:6px max(6px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left, 0px));box-shadow:0 -4px 0 0 var(--frame)}
+  .tab{flex-direction:column;gap:4px;padding:7px 2px 6px;font-size:.6rem;letter-spacing:.03em}
+  .tab+.tab{margin-left:4px}
+  #app{padding-bottom:calc(110px + env(safe-area-inset-bottom, 0px))}
+  .toast{bottom:calc(96px + env(safe-area-inset-bottom, 0px))}
+}
+
 /* save point */
 .acct-btn{display:inline-flex;align-items:center;gap:8px}
 .dot{width:10px;height:10px;background:var(--dim);flex:none;box-shadow:0 0 0 2px var(--frame)}
@@ -350,7 +376,15 @@ summary:hover{background:var(--panel2)}
     <div class="btn-row"><button type="button" class="sm acct-btn" id="acctBtn" data-acct="1" hidden><span class="dot" id="acctDot"></span><span id="acctLbl">Sign in to sync</span></button><button type="button" class="sm" id="editSetup">Edit holdings &amp; goals</button></div>
   </header>
 
-  <section class="panel" aria-label="Progress to goal">
+  <nav class="tabbar" role="tablist" aria-label="Planner sections" id="tabbar">
+    <button type="button" class="tab" role="tab" id="tab-goal" data-tab="goal" aria-controls="app">Goal</button>
+    <button type="button" class="tab" role="tab" id="tab-buy" data-tab="buy" aria-controls="app">Buy</button>
+    <button type="button" class="tab" role="tab" id="tab-balance" data-tab="balance" aria-controls="app">Balance</button>
+    <button type="button" class="tab" role="tab" id="tab-returns" data-tab="returns" aria-controls="app">Returns</button>
+    <button type="button" class="tab" role="tab" id="tab-funds" data-tab="funds" aria-controls="app">Funds</button>
+  </nav>
+
+  <section class="panel" aria-label="Progress to goal" data-tab="goal">
     <div class="goal-row">
       <div><div class="eyebrow">Monthly income now</div><div class="big" id="incomeNow">$0</div></div>
       <div style="text-align:right"><div class="eyebrow">Goal</div><div class="num" style="font-size:1.1rem;font-weight:600" id="goalLabel">$4,000 / mo</div></div>
@@ -366,7 +400,7 @@ summary:hover{background:var(--panel2)}
     <div class="hint" id="etaNote"></div>
   </section>
 
-  <section class="panel" aria-label="Dividend income">
+  <section class="panel" aria-label="Dividend income" data-tab="goal">
     <div class="sec-head"><h2>Dividend income</h2><span class="hint">Received each month, then expected</span></div>
     <div class="stats four">
       <div class="stat"><span class="eyebrow">Last month</span><b id="dvLast">–</b></div>
@@ -391,7 +425,7 @@ summary:hover{background:var(--panel2)}
     </details>
   </section>
 
-  <section class="panel" aria-label="Purchase day">
+  <section class="panel" aria-label="Purchase day" data-tab="buy">
     <h2>Purchase day</h2>
     <div class="fields">
       <label for="buyDate">Buy date<input type="date" id="buyDate"></label>
@@ -401,7 +435,7 @@ summary:hover{background:var(--panel2)}
     <div class="hint" id="cashNote"></div>
   </section>
 
-  <section class="ticket" aria-live="polite">
+  <section class="ticket" aria-live="polite" data-tab="buy">
     <div class="speaker"><div style="display:flex;flex-direction:column;gap:3px"><span class="eyebrow" style="color:var(--gold)">Shopkeeper</span><span class="hint">Recommended order</span></div></div>
     <h2 id="tHead">–</h2>
     <div class="lines" id="tLines"></div>
@@ -415,7 +449,7 @@ summary:hover{background:var(--panel2)}
     </div>
   </section>
 
-  <section class="panel" aria-label="Rebalancing">
+  <section class="panel" aria-label="Rebalancing" data-tab="balance">
     <div class="sec-head"><h2>Rebalancing</h2><span class="hint">Sector mix by market value</span></div>
     <div class="mix">
       <div class="mix-row"><span class="eyebrow">Now</span><div class="stack" id="stackNow"></div></div>
@@ -433,7 +467,7 @@ summary:hover{background:var(--panel2)}
     </details>
   </section>
 
-  <section class="panel" aria-label="Total return">
+  <section class="panel" aria-label="Total return" data-tab="returns">
     <div class="sec-head"><h2>Total return</h2><span class="hint">Price change plus distributions, against your average cost</span></div>
     <div class="stats four">
       <div class="stat"><span class="eyebrow">Cost basis</span><b id="trCost">–</b></div>
@@ -446,17 +480,17 @@ summary:hover{background:var(--panel2)}
     <div class="hint" id="trNote"></div>
   </section>
 
-  <section class="panel" aria-label="Fund ranking">
+  <section class="panel" aria-label="Fund ranking" data-tab="buy">
     <div class="sec-head"><h2>Ranking for this buy</h2><span class="hint">Score out of 100, before this order</span></div>
     <div class="funds" id="funds"></div>
   </section>
 
-  <section class="panel" aria-label="Diversifying funds" id="suggPanel">
+  <section class="panel" aria-label="Diversifying funds" id="suggPanel" data-tab="balance">
     <h2>Funds that would diversify you</h2>
     <div class="sugg" id="sugg"></div>
   </section>
 
-  <section class="panel" aria-label="Fund data">
+  <section class="panel" aria-label="Fund data" data-tab="funds">
     <h2>Fund data</h2>
     <p class="hint">Update price, 52-week range and recent distributions before each buy. Built-in data is from Oct 22–23, 2026 closes.</p>
     <div class="search">
@@ -466,7 +500,7 @@ summary:hover{background:var(--panel2)}
     <div id="editors" style="display:flex;flex-direction:column;gap:8px"></div>
   </section>
 
-  <section aria-label="Settings">
+  <section aria-label="Settings" data-tab="funds">
     <details>
       <summary><span>Options · scoring weights and goal</span><span class="num">tap to adjust</span></summary>
       <div class="ed">
@@ -484,7 +518,7 @@ summary:hover{background:var(--panel2)}
     </details>
   </section>
 
-  <section class="notes" aria-label="How the score works">
+  <section class="notes" aria-label="How the score works" data-tab="funds">
     <span class="eyebrow" style="color:var(--gold)">How to play</span><h2 style="color:var(--ink)">How the score works</h2>
     <p><b>Total return</b> blends where the price sits in its 52-week range (lower is cheaper), whether recent distributions are rising or shrinking, and a sustainability check that discounts yields far above 12%, since those usually come partly out of NAV.</p>
     <p><b>Monthly dividend</b> rewards a higher yield on the price you pay, with a small bonus when the next ex-dividend date lands 1 to 10 days after the buy.</p>
@@ -786,6 +820,7 @@ function render(){
   renderDivs(buyDate);
   renderSuggest();
   try{updateScenes()}catch(e){}
+  try{updateBadges(lines)}catch(e){}
 }
 
 function renderRebalance(buyDate,h0){
@@ -855,7 +890,7 @@ function renderSuggest(){
 function addHolding(tk,name){tk=tk.toUpperCase();if(state.funds.some(f=>f.tk===tk)){toast(tk+" is already in the planner");return}
   const f=fromCatalog(tk)||{tk,name:name||tk,cat:"other",shares:0,avgCost:null,collected:0,price:0,low:0,high:0,freq:12,divs:[],sched:{type:"firstBiz"},lag:0,note:""};
   state.funds.push(f);save();buildEditors();render();
-  if(!usable(f)){const d=$("editors").children[state.funds.length-1];if(d){d.open=true;d.scrollIntoView({block:"center",behavior:"smooth"})}toast(tk+" added. Enter its price and payouts.")}
+  if(!usable(f)){setTab("funds");const d=$("editors").children[state.funds.length-1];if(d){d.open=true;d.scrollIntoView({block:"center",behavior:"smooth"})}toast(tk+" added. Enter its price and payouts.")}
   else toast(tk+" added as a candidate")}
 
 /* ---------- dividend history ---------- */
@@ -1256,6 +1291,36 @@ function mountAll(){
   if(!mountAll.loop){mountAll.loop=1;sceneLoop()}
   drawAllScenes(true)}
 
+/* ---------- tabs ---------- */
+const TAB_ICONS={
+ goal:["o.........","oggggg....","ogggggo...","oggggg....","o.........","o.........","o.........","o.........","oo........","ooo......."],
+ buy:["...oooo...","....oo....","....oo....","...oooo...","..orrrro..",".orrWrrro.",".orrrrrro.",".orrrrrro.","..orrrro..","...oooo..."],
+ balance:["oooooooooo",".obbbbbbo.",".obbgbbbo.",".obbbbbbo.",".obbbbbbo.",".obbbbbbo.",".obbbbbbo.",".obbbbbbo.",".obbo.obo.",".oo....oo."],
+ returns:["oooooooooo","ogggggggGo",".ogggggGo.","..oggggo..","...oggo...","....oo....","....gg....","...oggo...","..oggggo..","..oooooo.."],
+ funds:["...oooo...","..o....o..",".oooooooo.","onnnnnnnno","onNNNNNNno","onnnggnnno","onnnggnnno","onnnnnnnno","onnnnnnnno",".oooooooo."]};
+const TABS=["goal","buy","balance","returns","funds"],TABK="divplanner.tab";
+let curTab="goal";
+function setTab(id,opt){if(!TABS.includes(id))id="goal";curTab=id;opt=opt||{};
+  document.querySelectorAll("#app section[data-tab]").forEach(sec=>sec.classList.toggle("tab-off",sec.dataset.tab!==id));
+  TABS.forEach(t=>{const b=$("tab-"+t);if(b){b.setAttribute("aria-selected",t===id?"true":"false");b.tabIndex=t===id?0:-1}});
+  lsSet(TABK,id);
+  if(!opt.fromHash&&location.hash.slice(1)!==id){try{history.replaceState(null,"","#"+id)}catch(e){}}
+  if(!opt.keepScroll)window.scrollTo(0,0);
+  if(!$("app").hidden){render();drawAllScenes(true)}}
+function initTabs(){
+  TABS.forEach(t=>{const b=$("tab-"+t);if(!b)return;const lbl=b.textContent;b.innerHTML=`<span>${lbl}</span>`;iconCanvas(b,TAB_ICONS[t],24);
+    b.addEventListener("click",()=>setTab(t));
+    b.addEventListener("keydown",e=>{const i=TABS.indexOf(t);let n=null;if(e.key==="ArrowRight")n=TABS[(i+1)%5];if(e.key==="ArrowLeft")n=TABS[(i+4)%5];if(e.key==="Home")n=TABS[0];if(e.key==="End")n=TABS[4];
+      if(n){e.preventDefault();setTab(n);$("tab-"+n).focus()}})});
+  const h=location.hash.slice(1);setTab(TABS.includes(h)?h:(lsGet(TABK)||"goal"),{fromHash:TABS.includes(h)});
+  window.addEventListener("hashchange",()=>{const h2=location.hash.slice(1);if(TABS.includes(h2)&&h2!==curTab)setTab(h2,{fromHash:true})})}
+function badge(id,txt,cls){const b=$("tab-"+id);if(!b)return;let el=b.querySelector(".badge");
+  if(!txt){if(el)el.remove();return}if(!el){el=document.createElement("span");b.appendChild(el)}el.className="badge"+(cls?" "+cls:"");el.textContent=txt}
+function updateBadges(lines){
+  badge("buy",lines&&lines.length&&curTab!=="buy"?String(lines.length):"","good");
+  const w=catWeights(),over=CATS.some(c=>catTarget(c.id)>0&&w[c.id]-catTarget(c.id)>.05);
+  badge("balance",over&&curTab!=="balance"?"!":"")}
+
 /* ---------- account sync ----------
    Email-link sign-in through the same Supabase project as the recipe book. One row per person in
    planner_state(user_id, data jsonb, updated_at); row-level security keeps it private. This browser keeps
@@ -1397,6 +1462,7 @@ let rz;window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>
 function showApp(){$("ob").hidden=true;$("app").hidden=false;cashTouched=false;bindSettings();buildEditors();refreshMainTargets();render()}
 function showCurrent(){if(state.onboarded&&state.funds.length)showApp();else obStart(false)}
 try{mountAll()}catch(e){}
+try{initTabs()}catch(e){}
 showCurrent();
 initCloud();
 window.addEventListener("resize",()=>drawAllScenes(true));
