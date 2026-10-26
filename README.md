@@ -1,7 +1,12 @@
 # Dividend Buy Planner
 
-Ranks six income funds for a given buy date and builds a share-by-share order from monthly contributions plus distributions, tracking progress to a monthly income goal.
+A planner for building a monthly-income portfolio. Set up your holdings from a screenshot or by searching, then get:
+
+- A recommended order for each month's buy (new money plus distributions), built one share at a time
+- Sector targets you control, with drift charts and buy or trim recommendations
+- Total return per holding from your average cost and distributions received
+- A projection of monthly income toward your goal
 
 Live: https://robbiestells.github.io/dividend-buy-planner/
 
-Update prices, 52-week ranges and recent distributions in the page before each buy. Edits are saved in your browser only. Not financial advice.
+Screenshot import runs on your device with text recognition (Tesseract.js). Everything you enter is saved in your browser only. Not financial advice.

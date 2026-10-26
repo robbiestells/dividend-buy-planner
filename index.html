@@ -7,26 +7,26 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-/* Layout: a single order-ticket column — goal strip, today's buy ticket, ranked funds, diversification, then the data you maintain */
+/* Layout: one order-ticket column — goal tracker, today's buy, rebalancing, total return, ranking, then data you maintain. Onboarding replaces it until holdings exist. */
 :root{
-  --bg:#f3f4f7; --surface:#ffffff; --ink:#1b2130; --muted:#5f6779; --line:#dfe2ea;
+  --bg:#f3f4f7; --surface:#ffffff; --ink:#1b2130; --muted:#5f6779; --line:#dfe2ea; --grid:#e6e8ee;
   --accent:#e8930c; --accent-soft:#fdf0db; --accent-ink:#8a5200;
-  --good:#1f8a5b; --warn:#b7791f; --bad:#c2410c; --track:#e7e9ef;
-  --c-nas:#e8930c; --c-spx:#3b6fd8; --c-small:#8b5cf6; --c-energy:#1f8a5b; --c-credit:#0e8f9b; --c-re:#c2557a; --c-intl:#5b6b8c; --c-other:#9aa2b4;
+  --good:#1f7a4f; --warn:#a86a12; --bad:#c2410c; --track:#e7e9ef;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300; --s7:#6250d6; --s8:#e34948;
   --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --f-body:"Figtree", "Segoe UI", system-ui, sans-serif;
   --f-num:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#12151c; --surface:#1b2029; --ink:#e9ecf3; --muted:#9aa2b4; --line:#2c3340;
+  --bg:#12151c; --surface:#1b2029; --ink:#e9ecf3; --muted:#9aa2b4; --line:#2c3340; --grid:#262c37;
   --accent:#f2a531; --accent-soft:#3a2c14; --accent-ink:#f7c370;
   --good:#4cc38a; --warn:#e3b04b; --bad:#f08a5d; --track:#2a303b;
-  --c-nas:#f2a531; --c-spx:#6b97f0; --c-small:#a78bfa; --c-energy:#4cc38a; --c-credit:#38c5d1; --c-re:#e07ba0; --c-intl:#8d9cbf; --c-other:#6b7385; color-scheme:dark}}
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#12151c; --surface:#1b2029; --ink:#e9ecf3; --muted:#9aa2b4; --line:#2c3340;
+  --bg:#12151c; --surface:#1b2029; --ink:#e9ecf3; --muted:#9aa2b4; --line:#2c3340; --grid:#262c37;
   --accent:#f2a531; --accent-soft:#3a2c14; --accent-ink:#f7c370;
   --good:#4cc38a; --warn:#e3b04b; --bad:#f08a5d; --track:#2a303b;
-  --c-nas:#f2a531; --c-spx:#6b97f0; --c-small:#a78bfa; --c-energy:#4cc38a; --c-credit:#38c5d1; --c-re:#e07ba0; --c-intl:#8d9cbf; --c-other:#6b7385; color-scheme:dark}
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
 .wrap{max-width:760px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));display:flex;flex-direction:column;gap:22px}
@@ -37,35 +37,40 @@ h3{font-size:1rem;font-weight:700}
 p{margin:0}
 .eyebrow{font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
-.muted{color:var(--muted)}
 section{display:flex;flex-direction:column;gap:12px}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
 .sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.top-bar{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
 
 .goal-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
 .big{font-family:var(--f-num);font-size:1.9rem;font-weight:600;font-variant-numeric:tabular-nums}
 .bar{height:10px;background:var(--track);border-radius:6px;overflow:hidden}
 .bar>i{display:block;height:100%;background:var(--accent);border-radius:6px}
 .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stats.four{grid-template-columns:repeat(4,minmax(0,1fr))}
 .stat{display:flex;flex-direction:column;gap:2px;min-width:0}
 .stat b{font-family:var(--f-num);font-weight:600;font-size:1.02rem;font-variant-numeric:tabular-nums}
+.pos{color:var(--good)} .neg{color:var(--bad)}
 
 .fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fields.three{grid-template-columns:repeat(3,minmax(0,1fr))}
 .fields .full{grid-column:1/-1}
 label{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--muted);font-weight:500;min-width:0}
-label.check{flex-direction:row;align-items:center;gap:8px;font-size:.85rem}
-label.check input{width:auto}
 input,select{font:inherit;font-family:var(--f-num);font-size:.95rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 10px;width:100%;min-width:0}
 select{font-family:var(--f-body)}
-input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible,.opt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .hint{font-size:.78rem;color:var(--muted)}
-.err{font-size:.82rem;color:var(--bad);font-weight:600}
+.err{font-size:.84rem;color:var(--bad);font-weight:600}
 button{font:inherit;font-weight:600;cursor:pointer;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
 button.primary{background:var(--accent);border-color:var(--accent);color:#1b1306}
+button.ghost{background:transparent}
 button.danger{color:var(--bad);border-color:currentColor;background:transparent}
 button.sm{padding:6px 11px;font-size:.85rem}
 button:disabled{opacity:.5;cursor:default}
-.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{padding:7px 12px;font-size:.85rem;border-radius:999px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 
 .ticket{border:1.5px solid var(--accent);background:var(--accent-soft);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
 .ticket h2{color:var(--accent-ink)}
@@ -97,23 +102,44 @@ button:disabled{opacity:.5;cursor:default}
 .part .pb i{display:block;height:100%;background:var(--ink);opacity:.75}
 .part .val{font-family:var(--f-num);font-size:.75rem;color:var(--muted)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{font-size:.75rem;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);font-family:var(--f-body);font-weight:500}
+.chip{font-size:.75rem;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);font-family:var(--f-body);font-weight:500;white-space:nowrap}
 .chip.good{color:var(--good);border-color:currentColor}
 .chip.warn{color:var(--warn);border-color:currentColor}
 .chip.bad{color:var(--bad);border-color:currentColor}
 .chip.cat{display:inline-flex;align-items:center;gap:5px}
 .sw{width:9px;height:9px;border-radius:2px;display:inline-block;flex:none}
 
-/* diversification */
+/* charts */
+.chart{position:relative;width:100%;min-width:0}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart text{font-family:var(--f-num);font-size:11px;fill:var(--muted)}
+.chart .lbl{font-family:var(--f-body);font-size:12px;fill:var(--ink);font-weight:600}
+.chart .val{fill:var(--ink)}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:.78rem;padding:6px 9px;border-radius:8px;white-space:nowrap;transform:translate(-50%,calc(-100% - 10px));z-index:3;font-family:var(--f-body)}
+.tip b{font-family:var(--f-num)}
+.legend-row{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--muted)}
+.legend-row span{display:inline-flex;align-items:center;gap:6px}
+.legend-row .ln{width:16px;height:2px;display:inline-block}
+.legend-row .dash{width:16px;border-top:2px dashed var(--muted);display:inline-block}
+
+/* sector targets */
 .mix{display:flex;flex-direction:column;gap:6px}
-.mix-row{display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center}
+.mix-row{display:grid;grid-template-columns:56px 1fr;gap:10px;align-items:center}
 .mix-row .eyebrow{font-size:.66rem}
-.stack{display:flex;height:16px;border-radius:5px;overflow:hidden;background:var(--track)}
+.stack{display:flex;gap:2px;height:16px;border-radius:5px;overflow:hidden;background:var(--track)}
 .stack i{display:block;height:100%}
-.legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 16px}
-.lg{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;font-size:.85rem;min-width:0}
-.lg .v{font-family:var(--f-num);font-size:.8rem;color:var(--muted);white-space:nowrap}
-.lg .v b{color:var(--ink);font-weight:600}
+.tgt-list{display:flex;flex-direction:column;gap:6px}
+.tgt{display:grid;grid-template-columns:auto 1fr 64px 76px;gap:10px;align-items:center;font-size:.9rem}
+.tgt input{padding:6px 8px;text-align:right}
+.tgt .cur{font-family:var(--f-num);font-size:.8rem;color:var(--muted);text-align:right}
+.tgt-head{font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.tgt-sum{display:flex;justify-content:flex-end;gap:8px;font-size:.85rem}
+.recs{display:flex;flex-direction:column;gap:10px}
+.rec{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;border-top:1px solid var(--line);padding-top:10px}
+.rec .tag{font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;font-weight:700;padding:3px 7px;border-radius:6px;border:1px solid currentColor;white-space:nowrap}
+.rec .tag.buy{color:var(--good)} .rec .tag.trim{color:var(--warn)} .rec .tag.add{color:var(--s1)}
+.rec p{font-size:.88rem;color:var(--muted)}
+.rec b{color:var(--ink)}
 .callout{border-left:3px solid var(--warn);padding:2px 0 2px 12px;font-size:.9rem;display:flex;flex-direction:column;gap:4px}
 .callout.ok{border-left-color:var(--good)}
 .sugg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -127,27 +153,111 @@ details{background:var(--surface);border:1px solid var(--line);border-radius:12p
 summary{cursor:pointer;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:600;list-style:none}
 summary::-webkit-details-marker{display:none}
 summary .num{font-weight:400;color:var(--muted);font-size:.85rem}
-details.add{border-style:dashed;border-color:var(--accent)}
-details.add summary{color:var(--accent-ink)}
 .ed{padding:0 14px 14px;display:flex;flex-direction:column;gap:12px}
 .notes{font-size:.88rem;color:var(--muted);display:flex;flex-direction:column;gap:8px;max-width:65ch}
+
+/* search */
+.search{position:relative}
+.results{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:6px;background:var(--surface)}
+.results button{border:0;border-radius:0;border-bottom:1px solid var(--line);text-align:left;display:grid;grid-template-columns:62px 1fr auto;gap:10px;align-items:center;font-weight:500;padding:10px 12px;background:var(--surface)}
+.results button:last-child{border-bottom:0}
+.results button b{font-family:var(--f-display)}
+.results button span{font-size:.84rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* onboarding */
+.steps{display:flex;gap:6px}
+.steps i{flex:1;height:4px;border-radius:2px;background:var(--track)}
+.steps i.on{background:var(--accent)}
+.opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.opt{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--surface);display:flex;flex-direction:column;gap:6px;text-align:left;cursor:pointer;font-weight:400;min-width:0}
+.opt b{font-family:var(--f-display);font-size:1rem}
+.opt span{font-size:.82rem;color:var(--muted)}
+.opt.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.hold{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--surface)}
+.hold-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.hold-head b{font-family:var(--f-display);font-size:1.05rem}
+.hold-head .nm{font-size:.8rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.status{font-size:.88rem;display:flex;align-items:center;gap:8px}
+.spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--accent);display:inline-block}
+@media (prefers-reduced-motion:no-preference){.spin{animation:sp 0.8s linear infinite}.bar>i{transition:width .4s ease}}
+@keyframes sp{to{transform:rotate(360deg)}}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:.9rem;font-weight:600;z-index:5}
-@media (max-width:520px){
-  .stats,.parts{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .sugg,.legend{grid-template-columns:1fr}
+@media (max-width:560px){
+  .stats,.parts,.stats.four{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sugg,.opts{grid-template-columns:1fr}
+  .fields.three{grid-template-columns:repeat(2,minmax(0,1fr))}
   .big{font-size:1.6rem}
 }
-@media (prefers-reduced-motion:no-preference){.bar>i{transition:width .4s ease}}
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
 </head>
 <body>
 
 
-<div class="wrap">
-  <header style="display:flex;flex-direction:column;gap:4px">
-    <span class="eyebrow">Monthly buy planner</span>
-    <h1>Dividend Buy Planner</h1>
+<!-- ONBOARDING -->
+<div class="wrap" id="ob" hidden>
+  <header style="display:flex;flex-direction:column;gap:8px">
+    <span class="eyebrow" id="obEyebrow">Set up · step 1 of 3</span>
+    <h1 id="obTitle">Add your holdings</h1>
+    <div class="steps" aria-hidden="true"><i id="st1"></i><i id="st2"></i><i id="st3"></i></div>
+  </header>
+
+  <div id="obStep1" style="display:flex;flex-direction:column;gap:16px">
+    <p class="hint" style="font-size:.9rem">Bring in what you own now. You can mix methods: import a screenshot, then search for anything it missed.</p>
+    <div class="opts">
+      <button type="button" class="opt" id="optImg"><b>Upload a screenshot</b><span>A photo of your brokerage's holdings or dividends screen</span></button>
+      <button type="button" class="opt" id="optSearch"><b>Search and add</b><span>Pick each fund and type in your shares</span></button>
+      <button type="button" class="opt" id="optSample"><b>Try a sample</b><span>A six-fund income portfolio to explore with</span></button>
+    </div>
+    <input type="file" id="imgFile" accept="image/png,image/jpeg,image/webp" hidden>
+    <div class="status" id="imgStatus" hidden></div>
+    <div class="search" id="obSearchWrap">
+      <label for="obSearch">Search funds and stocks<input id="obSearch" type="search" placeholder="Ticker or name, e.g. SCHD" autocomplete="off" autocapitalize="characters"></label>
+      <div class="results" id="obResults" hidden></div>
+    </div>
+    <div class="sec-head"><h2>Your holdings <span class="num" style="font-weight:400;color:var(--muted);font-size:.9rem" id="obCount"></span></h2></div>
+    <div id="obHolds" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div class="err" id="ob1Err" hidden></div>
+  </div>
+
+  <div id="obStep2" hidden style="display:flex;flex-direction:column;gap:16px">
+    <div class="panel">
+      <h2>Your income goal</h2>
+      <div class="fields">
+        <label for="obGoal">Monthly income goal ($)<input id="obGoal" type="number" min="0" inputmode="decimal"></label>
+        <label for="obContrib">New money each month ($)<input id="obContrib" type="number" min="0" inputmode="decimal"></label>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>What matters most</h2>
+      <div class="opts" id="obPri">
+        <button type="button" class="opt" data-pri="tr"><b>Total return first</b><span>Buy what's cheap and healthy; income second</span></button>
+        <button type="button" class="opt" data-pri="bal"><b>Balanced</b><span>Weigh growth and monthly income evenly</span></button>
+        <button type="button" class="opt" data-pri="inc"><b>Income first</b><span>Favor the highest sustainable payouts</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="obStep3" hidden style="display:flex;flex-direction:column;gap:16px">
+    <div class="panel">
+      <h2>Target mix by sector</h2>
+      <p class="hint" style="font-size:.88rem">The planner steers new money toward sectors below these targets. Start from a preset, then adjust any row.</p>
+      <div class="seg" id="obPresets"></div>
+      <div class="tgt-list" id="obTargets"></div>
+    </div>
+  </div>
+
+  <div class="btn-row" style="justify-content:space-between">
+    <button type="button" class="ghost" id="obBack">Back</button>
+    <div class="btn-row"><button type="button" class="ghost" id="obCancel" hidden>Cancel</button><button type="button" class="primary" id="obNext">Continue</button></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="wrap" id="app" hidden>
+  <header class="top-bar">
+    <div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow">Monthly buy planner</span><h1>Dividend Buy Planner</h1></div>
+    <button type="button" class="sm" id="editSetup">Edit holdings &amp; goals</button>
   </header>
 
   <section class="panel" aria-label="Progress to goal">
@@ -161,6 +271,8 @@ details.add summary{color:var(--accent-ink)}
       <div class="stat"><span class="eyebrow">Blended yield</span><b id="pYield">–</b></div>
       <div class="stat"><span class="eyebrow">Est. time to goal</span><b id="pEta">–</b></div>
     </div>
+    <div class="chart" id="goalChart"></div>
+    <div class="legend-row"><span><i class="ln" style="background:var(--s1)"></i>Projected monthly income</span><span><i class="sw" style="background:var(--s1);border-radius:50%;width:8px;height:8px"></i>Recorded</span><span><i class="dash"></i>Goal</span></div>
     <div class="hint" id="etaNote"></div>
   </section>
 
@@ -187,58 +299,55 @@ details.add summary{color:var(--accent-ink)}
     </div>
   </section>
 
+  <section class="panel" aria-label="Rebalancing">
+    <div class="sec-head"><h2>Rebalancing</h2><span class="hint">Sector mix by market value</span></div>
+    <div class="mix">
+      <div class="mix-row"><span class="eyebrow">Now</span><div class="stack" id="stackNow"></div></div>
+      <div class="mix-row"><span class="eyebrow">Target</span><div class="stack" id="stackTgt"></div></div>
+    </div>
+    <div class="chart" id="driftChart"></div>
+    <div class="legend-row"><span><i class="sw" style="background:var(--s1)"></i>Under target</span><span><i class="sw" style="background:var(--s2)"></i>Over target</span></div>
+    <div id="divCallout"></div>
+    <div class="sec-head" style="margin-top:4px"><h3>Recommendations</h3>
+      <div class="seg" role="group" aria-label="Rebalance method"><button type="button" id="mNew" aria-pressed="true">New money only</button><button type="button" id="mSell" aria-pressed="false">Include sells</button></div></div>
+    <div class="recs" id="recs"></div>
+    <details id="tgtBox">
+      <summary>Set target mix by sector <span class="num" id="tgtSumLbl"></span></summary>
+      <div class="ed"><div class="seg" id="presets"></div><div class="tgt-list" id="targets"></div></div>
+    </details>
+  </section>
+
+  <section class="panel" aria-label="Total return">
+    <div class="sec-head"><h2>Total return</h2><span class="hint">Price change plus distributions, against your average cost</span></div>
+    <div class="stats four">
+      <div class="stat"><span class="eyebrow">Cost basis</span><b id="trCost">–</b></div>
+      <div class="stat"><span class="eyebrow">Price change</span><b id="trPrice">–</b></div>
+      <div class="stat"><span class="eyebrow">Distributions</span><b id="trDist">–</b></div>
+      <div class="stat"><span class="eyebrow">Total return</span><b id="trTotal">–</b></div>
+    </div>
+    <div class="chart" id="trChart"></div>
+    <div class="legend-row" id="trLegend"><span><i class="sw" style="background:var(--s1)"></i>Price change</span><span><i class="sw" style="background:var(--s3)"></i>Distributions</span><span><i class="sw" style="background:var(--ink);border-radius:50%"></i>Total</span></div>
+    <div class="hint" id="trNote"></div>
+  </section>
+
   <section aria-label="Fund ranking">
     <div class="sec-head"><h2>Ranking for this buy</h2><span class="hint">Score out of 100, before this order</span></div>
     <div class="funds" id="funds"></div>
   </section>
 
-  <section class="panel" aria-label="Diversification">
-    <div class="sec-head"><h2>Diversification</h2><span class="hint">By market value</span></div>
-    <div class="mix">
-      <div class="mix-row"><span class="eyebrow">Now</span><div class="stack" id="stackNow"></div></div>
-      <div class="mix-row"><span class="eyebrow">Target</span><div class="stack" id="stackTgt"></div></div>
-    </div>
-    <div class="legend" id="legend"></div>
-    <div id="divCallout"></div>
-    <div class="btn-row"><button type="button" class="primary" id="applyPlan">Apply diversified targets</button></div>
-    <p class="hint" id="planNote">Adds the five funds below as candidates and moves targets to about 55% Nasdaq/tech, with the rest across S&amp;P 500, small caps, energy, credit and real estate. Your holdings don't change; new money gets steered toward what's underweight.</p>
-    <h3 style="margin-top:4px">Funds that would diversify you</h3>
+  <section class="panel" aria-label="Diversifying funds" id="suggPanel">
+    <h2>Funds that would diversify you</h2>
     <div class="sugg" id="sugg"></div>
   </section>
 
   <section aria-label="Fund data">
     <h2>Fund data</h2>
-    <p class="hint">Update price, 52-week range and recent distributions before each buy. Seeded from closing data on Oct 22–23, 2026.</p>
+    <p class="hint">Update price, 52-week range and recent distributions before each buy. Built-in data is from Oct 22–23, 2026 closes.</p>
+    <div class="search">
+      <label for="mSearch">Add a fund to consider<input id="mSearch" type="search" placeholder="Ticker or name" autocomplete="off" autocapitalize="characters"></label>
+      <div class="results" id="mResults" hidden></div>
+    </div>
     <div id="editors" style="display:flex;flex-direction:column;gap:8px"></div>
-    <details class="add" id="addBox">
-      <summary>+ Add a fund to consider <span class="num">any ticker</span></summary>
-      <form class="ed" id="addForm" novalidate>
-        <div class="fields">
-          <label for="a-tk">Ticker<input id="a-tk" type="text" autocapitalize="characters" placeholder="SCHD" maxlength="8"></label>
-          <label for="a-name">Name<input id="a-name" type="text" placeholder="Schwab US Dividend Equity"></label>
-          <label for="a-cat">Exposure<select id="a-cat"></select></label>
-          <label for="a-price">Price<input id="a-price" type="number" step="0.01" inputmode="decimal"></label>
-          <label for="a-low">52-week low<input id="a-low" type="number" step="0.01" inputmode="decimal"></label>
-          <label for="a-high">52-week high<input id="a-high" type="number" step="0.01" inputmode="decimal"></label>
-          <label for="a-freq">Payments per year<select id="a-freq"><option value="12">Monthly (12)</option><option value="4">Quarterly (4)</option><option value="2">Semiannual (2)</option><option value="1">Annual (1)</option></select></label>
-          <label for="a-ex">Usual ex-dividend date<select id="a-ex">
-            <option value="firstBiz">First business day</option>
-            <option value="w1">1st Wednesday</option><option value="w2">2nd Wednesday</option>
-            <option value="w3">3rd Wednesday</option><option value="w4">4th Wednesday</option>
-            <option value="lastBiz">Last business day</option>
-            <option value="day">A set day of the month</option>
-          </select></label>
-          <label for="a-day" id="a-day-wrap" hidden>Day of month<input id="a-day" type="number" min="1" max="28" value="15"></label>
-          <label for="a-months" id="a-months-wrap" hidden>Months it pays (e.g. 3, 6, 9, 12)<input id="a-months" type="text" value="3, 6, 9, 12"></label>
-          <label class="full" for="a-divs">Recent distributions, newest first<input id="a-divs" type="text" placeholder="0.25, 0.25, 0.24, 0.25, 0.24, 0.24"></label>
-          <label for="a-target">Target weight (%)<input id="a-target" type="number" step="1" min="0" value="5"></label>
-          <label for="a-shares">Shares already held<input id="a-shares" type="number" step="0.001" min="0" value="0"></label>
-          <label class="check full" for="a-lag"><input id="a-lag" type="checkbox"> Pays the month after the ex-dividend date</label>
-        </div>
-        <div class="err" id="addErr" hidden></div>
-        <div class="btn-row"><button class="primary" type="submit">Add fund</button></div>
-      </form>
-    </details>
   </section>
 
   <section aria-label="Settings">
@@ -253,8 +362,8 @@ details.add summary{color:var(--accent-ink)}
           <label for="contrib">New money each month ($)<input type="number" id="contrib" min="0"></label>
           <label for="drift">Distribution change per year (%)<input type="number" id="drift" step="0.5"></label>
         </div>
-        <p class="hint">Weights are normalized, so they don't need to add to 100. Targets are normalized too. A negative distribution change models the slow NAV erosion common in option-income funds.</p>
-        <div class="btn-row"><button type="button" id="reset">Reset all data to seed values</button></div>
+        <p class="hint">Weights are normalized, so they don't need to add to 100. A negative distribution change models the slow NAV erosion common in option-income funds.</p>
+        <div class="btn-row"><button type="button" id="reset" class="danger sm">Erase all data and start over</button></div>
       </div>
     </details>
   </section>
@@ -263,91 +372,118 @@ details.add summary{color:var(--accent-ink)}
     <h2 style="color:var(--ink)">How the score works</h2>
     <p><b>Total return</b> blends where the price sits in its 52-week range (lower is cheaper), whether recent distributions are rising or shrinking, and a sustainability check that discounts yields far above 12%, since those usually come partly out of NAV.</p>
     <p><b>Monthly dividend</b> rewards a higher yield on the price you pay, with a small bonus when the next ex-dividend date lands 1 to 10 days after the buy.</p>
-    <p><b>Balance</b> favors funds below their own target and exposures below their combined target. The order is built one share at a time, re-scoring after each share, so cash spreads across funds.</p>
-    <p>This is a rules-based helper, not financial advice. Ex-dividend dates are estimated from each fund's recent pattern; confirm them with your broker.</p>
+    <p><b>Balance</b> favors sectors below their target and, within a sector, funds below their share of it. The order is built one share at a time, re-scoring after each share, so cash spreads out.</p>
+    <p>Total return counts distributions you entered plus those the planner estimates each time you record a purchase. This is a rules-based helper, not financial advice; ex-dividend dates are estimates, and selling can create taxes.</p>
   </section>
 </div>
 <div class="toast" id="toast" hidden></div>
 
 <script>
+/* ---------- reference data ---------- */
 const CATS=[
-  {id:"nas",label:"Nasdaq / tech"},{id:"spx",label:"S&P 500"},{id:"small",label:"Small cap"},
-  {id:"energy",label:"Energy infrastructure"},{id:"credit",label:"Credit / bonds"},{id:"re",label:"Real estate"},
-  {id:"intl",label:"International"},{id:"other",label:"Other"}];
-const catLabel=id=>(CATS.find(c=>c.id===id)||CATS[7]).label;
-
-const SEED={
-  settings:{wTR:60,wDiv:25,wBal:15,goal:4000,contrib:500,drift:0},
-  funds:[
-    {tk:"FSPTX",name:"Fidelity Select Technology",cat:"nas",shares:1444,price:54.63,low:37.88,high:59.55,freq:2,divs:[2.175,2.175],target:25,
-      sched:{type:"months",months:[4,12],day:10},note:"Mutual fund. Distributions are mostly capital gains, paid about twice a year (estimated)."},
-    {tk:"JEPQ",name:"JPMorgan Nasdaq Equity Premium Income",cat:"nas",shares:1000,price:58.43,low:53.51,high:61.72,freq:12,divs:[0.567,0.567,0.567,0.567,0.567,0.567],target:20,
-      sched:{type:"firstBiz"},note:"Distribution amounts estimated from the trailing $6.80/yr. Enter actual payouts for a trend signal."},
-    {tk:"MLPI",name:"NEOS MLP & Energy Infrastructure High Income",cat:"energy",shares:625,price:52.50,low:49.15,high:58.47,freq:12,divs:[0.6022,0.6276,0.6402,0.6834,0.6576,0.7038],target:15,
-      sched:{type:"nthWeekday",n:3,dow:3},note:""},
-    {tk:"QQQI",name:"NEOS Nasdaq 100 High Income",cat:"nas",shares:725,price:52.59,low:47.87,high:57.84,freq:12,divs:[0.6343,0.6339,0.6518,0.6346,0.6572,0.6589],target:20,
-      sched:{type:"nthWeekday",n:3,dow:3},note:""},
-    {tk:"ROCQ",name:"JPMorgan Nasdaq Equity Premium Yield",cat:"nas",shares:1001,price:55.14,low:47.19,high:58.27,freq:12,divs:[0.4910,0.4936,0.7083,0.5232,0.4973,0.6668],target:15,
-      sched:{type:"firstBiz"},note:""},
-    {tk:"XQQI",name:"NEOS Boosted Nasdaq-100 High Income",cat:"nas",shares:69,price:46.63,low:41.68,high:54.70,freq:12,divs:[0.8823,0.8403,0.8236,0.8772,0.9216,0.8560],target:5,
-      sched:{type:"nthWeekday",n:1,dow:3},note:"Uses leverage to boost income; bigger swings both ways."}
-  ]
-};
-// Diversifying candidates (data as of Oct 22–23, 2026 closes)
-const SUGGEST=[
-  {tk:"JBBB",name:"Janus Henderson B-BBB CLO ETF",cat:"credit",shares:0,price:47.01,low:46.42,high:48.30,freq:12,divs:[0.2514,0.2404,0.2272,0.2308,0.2275,0.2373],target:10,
-    sched:{type:"lastBiz"},lag:1,why:"Floating-rate corporate loans. Very little stock-market correlation and a tight price range; steadies income when tech sells off.",note:"Pays early the following month."},
-  {tk:"O",name:"Realty Income",cat:"re",shares:0,price:56.89,low:53.33,high:67.94,freq:12,divs:[0.2715,0.2715,0.271,0.271,0.271,0.2705],target:8,
-    sched:{type:"lastBiz"},lag:1,why:"Monthly-paying REIT with a long record of small raises. Real estate behaves differently from growth stocks and sits near its 52-week low.",note:"Single stock, not a fund. Pays mid the following month."},
-  {tk:"SPYI",name:"NEOS S&P 500 High Income",cat:"spx",shares:0,price:52.64,low:47.77,high:54.47,freq:12,divs:[0.5087,0.5338,0.5423,0.530,0.531,0.5353],target:5,
-    sched:{type:"nthWeekday",n:3,dow:3},why:"Same option-income approach as QQQI, but on all 500 S&P stocks, so financials, healthcare and industrials join tech.",note:""},
-  {tk:"JEPI",name:"JPMorgan Equity Premium Income",cat:"spx",shares:0,price:56.85,low:55.10,high:59.90,freq:12,divs:[0.3413,0.3714,0.3666,0.3872,0.3892,0.4476],target:5,
-    sched:{type:"firstBiz"},why:"JEPQ's S&P sibling, tilted to lower-volatility value stocks. Lower yield, but the least tech-dependent equity income here.",note:"52-week range from a secondary source; verify."},
-  {tk:"IWMI",name:"NEOS Russell 2000 High Income",cat:"small",shares:0,price:48.29,low:45.64,high:53.86,freq:12,divs:[0.5728,0.6075,0.6373,0.6250,0.6277,0.6046],target:5,
-    sched:{type:"nthWeekday",n:3,dow:3},why:"Small US companies, which barely overlap with the Nasdaq-100. Keeps a QQQI-like yield while adding a different slice of the market.",note:""}
+  {id:"nas",label:"Nasdaq / tech",c:"--s1"},{id:"spx",label:"US large cap",c:"--s2"},{id:"small",label:"Small cap",c:"--s3"},
+  {id:"energy",label:"Energy infrastructure",c:"--s4"},{id:"credit",label:"Credit / bonds",c:"--s5"},{id:"re",label:"Real estate",c:"--s6"},
+  {id:"intl",label:"International",c:"--s7"},{id:"other",label:"Other",c:"--s8"}];
+const catOf=id=>CATS.find(c=>c.id===id)||CATS[7];
+const SUGGESTED_MIX={nas:55,spx:10,small:5,energy:12,credit:10,re:8,intl:0,other:0};
+// Full data: price, 52-wk range and last six distributions (newest first), Oct 22–23, 2026 closes.
+const FULL=[
+  {tk:"FSPTX",name:"Fidelity Select Technology",cat:"nas",price:54.63,low:37.88,high:59.55,freq:2,divs:[2.175,2.175],sched:{type:"months",months:[4,12],day:10},note:"Mutual fund. Distributions are mostly capital gains, about twice a year (estimated)."},
+  {tk:"JEPQ",name:"JPMorgan Nasdaq Equity Premium Income",cat:"nas",price:58.43,low:53.51,high:61.72,freq:12,divs:[0.567,0.567,0.567,0.567,0.567,0.567],sched:{type:"firstBiz"},note:"Payouts estimated from the trailing $6.80/yr. Enter actual amounts for a trend signal."},
+  {tk:"MLPI",name:"NEOS MLP & Energy Infrastructure High Income",cat:"energy",price:52.50,low:49.15,high:58.47,freq:12,divs:[0.6022,0.6276,0.6402,0.6834,0.6576,0.7038],sched:{type:"nthWeekday",n:3,dow:3}},
+  {tk:"QQQI",name:"NEOS Nasdaq 100 High Income",cat:"nas",price:52.59,low:47.87,high:57.84,freq:12,divs:[0.6343,0.6339,0.6518,0.6346,0.6572,0.6589],sched:{type:"nthWeekday",n:3,dow:3}},
+  {tk:"ROCQ",name:"JPMorgan Nasdaq Equity Premium Yield",cat:"nas",price:55.14,low:47.19,high:58.27,freq:12,divs:[0.4910,0.4936,0.7083,0.5232,0.4973,0.6668],sched:{type:"firstBiz"}},
+  {tk:"XQQI",name:"NEOS Boosted Nasdaq-100 High Income",cat:"nas",price:46.63,low:41.68,high:54.70,freq:12,divs:[0.8823,0.8403,0.8236,0.8772,0.9216,0.8560],sched:{type:"nthWeekday",n:1,dow:3},note:"Uses leverage to boost income; bigger swings both ways."},
+  {tk:"JBBB",name:"Janus Henderson B-BBB CLO ETF",cat:"credit",price:47.01,low:46.42,high:48.30,freq:12,divs:[0.2514,0.2404,0.2272,0.2308,0.2275,0.2373],sched:{type:"lastBiz"},lag:1,
+    why:"Floating-rate corporate loans. Very little stock-market correlation and a tight price range; steadies income when tech sells off."},
+  {tk:"O",name:"Realty Income",cat:"re",price:56.89,low:53.33,high:67.94,freq:12,divs:[0.2715,0.2715,0.271,0.271,0.271,0.2705],sched:{type:"lastBiz"},lag:1,note:"Single stock, not a fund.",
+    why:"Monthly-paying REIT with a long record of small raises. Real estate behaves differently from growth stocks and sits near its 52-week low."},
+  {tk:"SPYI",name:"NEOS S&P 500 High Income",cat:"spx",price:52.64,low:47.77,high:54.47,freq:12,divs:[0.5087,0.5338,0.5423,0.530,0.531,0.5353],sched:{type:"nthWeekday",n:3,dow:3},
+    why:"QQQI's option-income approach on all 500 S&P stocks, so financials, healthcare and industrials join tech."},
+  {tk:"JEPI",name:"JPMorgan Equity Premium Income",cat:"spx",price:56.85,low:55.10,high:59.90,freq:12,divs:[0.3413,0.3714,0.3666,0.3872,0.3892,0.4476],sched:{type:"firstBiz"},note:"52-week range from a secondary source; verify.",
+    why:"JEPQ's S&P sibling, tilted to lower-volatility value stocks. Lower yield, but the least tech-dependent equity income here."},
+  {tk:"IWMI",name:"NEOS Russell 2000 High Income",cat:"small",price:48.29,low:45.64,high:53.86,freq:12,divs:[0.5728,0.6075,0.6373,0.6250,0.6277,0.6046],sched:{type:"nthWeekday",n:3,dow:3},
+    why:"Small US companies, which barely overlap with the Nasdaq-100, at a QQQI-like yield."}
 ];
-const PLAN_TARGETS={FSPTX:20,JEPQ:13,QQQI:10,ROCQ:9,XQQI:3,MLPI:12,JBBB:10,O:8,SPYI:5,JEPI:5,IWMI:5};
+const Q=(d)=>({type:"months",months:[3,6,9,12],day:d}), M=(d)=>({type:"months",months:[1,2,3,4,5,6,7,8,9,10,11,12],day:d});
+// Name, sector and payout schedule only; you supply price and distributions.
+const META=[
+  ["SCHD","Schwab US Dividend Equity ETF","spx",4,Q(24)],["VYM","Vanguard High Dividend Yield ETF","spx",4,Q(20)],
+  ["DGRO","iShares Core Dividend Growth ETF","spx",4,Q(10)],["VIG","Vanguard Dividend Appreciation ETF","spx",4,Q(25)],
+  ["DIVO","Amplify CWP Enhanced Dividend Income ETF","spx",12,{type:"lastBiz"}],["XYLD","Global X S&P 500 Covered Call ETF","spx",12,{type:"nthWeekday",n:3,dow:1}],
+  ["QYLD","Global X Nasdaq 100 Covered Call ETF","nas",12,{type:"nthWeekday",n:3,dow:1}],["RYLD","Global X Russell 2000 Covered Call ETF","small",12,{type:"nthWeekday",n:3,dow:1}],
+  ["GPIX","Goldman Sachs S&P 500 Core Premium Income ETF","spx",12,M(22)],["GPIQ","Goldman Sachs Nasdaq-100 Core Premium Income ETF","nas",12,M(22)],
+  ["SVOL","Simplify Volatility Premium ETF","other",12,M(22)],["BTCI","NEOS Bitcoin High Income ETF","other",12,{type:"nthWeekday",n:3,dow:3}],
+  ["PFFD","Global X US Preferred ETF","credit",12,M(20)],["BND","Vanguard Total Bond Market ETF","credit",12,{type:"firstBiz"}],
+  ["ARCC","Ares Capital","credit",4,Q(14)],["MAIN","Main Street Capital","credit",12,M(20)],["BIZD","VanEck BDC Income ETF","credit",4,Q(20)],
+  ["VNQ","Vanguard Real Estate ETF","re",4,Q(25)],["IDVO","Amplify CWP International Enhanced Dividend Income ETF","intl",12,{type:"lastBiz"}],
+  ["VXUS","Vanguard Total International Stock ETF","intl",4,Q(20)],["SCHY","Schwab International Dividend Equity ETF","intl",4,Q(24)],
+  ["JEPQ",null],["QQQ","Invesco QQQ Trust","nas",4,Q(22)],["SPY","SPDR S&P 500 ETF","spx",4,Q(20)],["VOO","Vanguard S&P 500 ETF","spx",4,Q(25)]
+].filter(r=>r[1]).map(([tk,name,cat,freq,sched])=>({tk,name,cat,freq,sched,price:0,low:0,high:0,divs:[],note:"Payout dates estimated from the fund's usual pattern."}));
+const CATALOG=[...FULL,...META];
+const SUGGEST=["JBBB","O","SPYI","JEPI","IWMI"];
+const SAMPLE=[["FSPTX",400,48.10],["JEPQ",300,55.20],["MLPI",200,54.80],["QQQI",250,50.40],["ROCQ",250,52.75],["XQQI",50,49.90]];
+const PRESETS={tr:[60,25,15],bal:[45,35,20],inc:[30,55,15]};
 
+/* ---------- state ---------- */
 const KEY="divplanner.v1";
-let state, cashTouched=false, lastPurchase=null, plan=null;
+const fresh=()=>({v:2,onboarded:false,settings:{wTR:60,wDiv:25,wBal:15,goal:4000,contrib:500,drift:0,pri:"tr"},catTargets:{...SUGGESTED_MIX},funds:[],history:[]});
+function fromCatalog(tk){const c=CATALOG.find(x=>x.tk===tk);if(!c)return null;const f=structuredClone(c);delete f.why;
+  return Object.assign({shares:0,avgCost:null,collected:0,lag:0,note:""},f)}
 function load(){
   let s=null;try{const raw=localStorage.getItem(KEY);if(raw)s=JSON.parse(raw)}catch(e){}
-  if(!s||!Array.isArray(s.funds))s=structuredClone(SEED);
-  s.funds.forEach(f=>{const seed=[...SEED.funds,...SUGGEST].find(x=>x.tk===f.tk);
-    if(!f.cat)f.cat=seed?seed.cat:"other"; if(!f.sched)f.sched=seed?seed.sched:{type:"firstBiz"}; if(f.lag==null)f.lag=seed&&seed.lag?seed.lag:0; if(f.target==null)f.target=0});
-  s.settings=Object.assign({},SEED.settings,s.settings||{});
+  if(!s||!Array.isArray(s.funds))return fresh();
+  if(s.v!==2){ // migrate v1: per-fund targets become sector targets
+    const ct={};CATS.forEach(c=>ct[c.id]=0);
+    s.funds.forEach(f=>{const cat=f.cat||(CATALOG.find(x=>x.tk===f.tk)||{}).cat||"other";f.cat=cat;ct[cat]+=(f.target||0)});
+    const sum=Object.values(ct).reduce((a,b)=>a+b,0);s.catTargets=sum?ct:{...SUGGESTED_MIX};
+    s.v=2;s.onboarded=s.funds.length>0;s.history=[];
+  }
+  s.funds.forEach(f=>{const c=CATALOG.find(x=>x.tk===f.tk);
+    if(!f.cat)f.cat=c?c.cat:"other";if(!f.sched)f.sched=c?c.sched:{type:"firstBiz"};if(f.lag==null)f.lag=c&&c.lag?c.lag:0;
+    if(f.avgCost===undefined)f.avgCost=null;if(f.collected==null)f.collected=0;if(!Array.isArray(f.divs))f.divs=[];delete f.target});
+  s.settings=Object.assign(fresh().settings,s.settings||{});
+  CATS.forEach(c=>{if(s.catTargets[c.id]==null)s.catTargets[c.id]=0});
+  if(!Array.isArray(s.history))s.history=[];
   return s}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
-state=load();
+let state=load(), cashTouched=false, lastPurchase=null, plan=null, rebalMode="new";
 
+/* ---------- helpers ---------- */
 const $=id=>document.getElementById(id);
-const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const usd=(v,d=0)=>(v<0?"-":"")+"$"+Math.abs(v).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
+const sgnUsd=(v,d=0)=>(v>0?"+":"")+usd(v,d);
 const pct=(v,d=1)=>(v*100).toFixed(d)+"%";
+const sgnPct=(v,d=1)=>(v>0?"+":"")+pct(v,d);
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 const avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:0;
-const sw=cat=>`<span class="sw" style="background:var(--c-${cat})"></span>`;
+const cvar=n=>`var(${catOf(n).c})`;
+const sw=cat=>`<span class="sw" style="background:${cvar(cat)}"></span>`;
+const monthKey=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+function toast(msg){const t=$("toast");t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2400)}
 
-function annualDiv(f){const n=Math.min(f.divs.length,f.freq>=12?6:f.freq);return avg(f.divs.slice(0,n))*f.freq}
+function annualDiv(f){if(!f.divs.length)return 0;const n=Math.min(f.divs.length,f.freq>=12?6:f.freq);return avg(f.divs.slice(0,n))*f.freq}
 function yieldOf(f){return f.price>0?annualDiv(f)/f.price:0}
+function usable(f){return f.price>0&&f.divs.length>0}
 function rangePos(f){const s=f.high-f.low;return s>0?clamp((f.price-f.low)/s):.5}
 
 function firstBiz(y,m){let d=new Date(y,m,1);while(d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()+1);return d}
 function lastBiz(y,m){let d=new Date(y,m+1,0);while(d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()-1);return d}
 function nthWeekday(y,m,n,dow){let d=new Date(y,m,1),c=0;for(let i=0;i<31;i++){if(d.getDay()===dow&&++c===n)return d;d.setDate(d.getDate()+1)}return null}
-function exInMonth(f,y,m){const s=f.sched;
-  if(s.type==="firstBiz")return firstBiz(y,m);
-  if(s.type==="lastBiz")return lastBiz(y,m);
+function exInMonth(f,y,m){const s=f.sched||{};
+  if(s.type==="firstBiz")return firstBiz(y,m);if(s.type==="lastBiz")return lastBiz(y,m);
   if(s.type==="nthWeekday")return nthWeekday(y,m,s.n,s.dow);
   if(s.type==="months")return s.months.includes(m+1)?new Date(y,m,s.day):null;return null}
 function nextEx(f,from){for(let i=0;i<14;i++){const b=new Date(from.getFullYear(),from.getMonth()+i,1);const d=exInMonth(f,b.getFullYear(),b.getMonth());if(d&&d>from)return d}return null}
 function parseDate(v){const [y,m,d]=v.split("-").map(Number);return new Date(y,m-1,d)}
 
 function totals(h){let value=0,income=0;state.funds.forEach((f,i)=>{const sh=h?h[i]:f.shares;value+=sh*f.price;income+=sh*annualDiv(f)});return {value,income}}
-function targetSum(){return state.funds.reduce((s,f)=>s+(f.target||0),0)||1}
-function catMix(h){const t=totals(h).value||1,ts=targetSum();const m={};
-  state.funds.forEach((f,i)=>{const c=m[f.cat]||(m[f.cat]={w:0,t:0});c.w+=(h?h[i]:f.shares)*f.price/t;c.t+=(f.target||0)/ts});return m}
+function tgtSum(){return CATS.reduce((s,c)=>s+(+state.catTargets[c.id]||0),0)}
+function catTarget(id){const s=tgtSum();return s>0?(+state.catTargets[id]||0)/s:0}
+function catWeights(h){const tv=totals(h).value||1,w={};CATS.forEach(c=>w[c.id]=0);state.funds.forEach((f,i)=>w[f.cat]+=(h?h[i]:f.shares)*f.price/tv);return w}
 
+/* ---------- scoring ---------- */
 function scoreFund(f,i,h,buyDate){
   const pos=rangePos(f),value=1-pos;
   let trend=0,health=.5;
@@ -356,50 +492,142 @@ function scoreFund(f,i,h,buyDate){
   const ex=nextEx(f,buyDate),days=ex?Math.round((ex-buyDate)/864e5):99;
   const exBonus=days>=1&&days<=10?1-(days-1)/10:0;
   const yScore=clamp(y/.20);
-  const tv=totals(h).value,w=tv>0?h[i]*f.price/tv:0,tgt=(f.target||0)/targetSum();
-  const fb=tgt>0?clamp(.5+(tgt-w)/tgt*.5):.5;
-  const cm=catMix(h)[f.cat];const cb=cm&&cm.t>0?clamp(.5+(cm.t-cm.w)/cm.t*.5):.5;
-  const bal=.5*fb+.5*cb;
+  const tv=totals(h).value,w=tv>0?h[i]*f.price/tv:0;
+  const ct=catTarget(f.cat),cw=catWeights(h)[f.cat];
+  const nIn=state.funds.filter(x=>x.cat===f.cat&&usable(x)).length||1,ft=ct/nIn;
+  const cb=ct>0?clamp(.5+(ct-cw)/ct*.5):(cw>0?.1:.3);
+  const fb=ft>0?clamp(.5+(ft-w)/ft*.5):.3;
+  const bal=.75*cb+.25*fb;
   const s=state.settings,W=(s.wTR+s.wDiv+s.wBal)||1;
-  const trPart=.55*value+.25*health+.20*sustain, divPart=.8*yScore+.2*exBonus;
-  return {total:(s.wTR*trPart+s.wDiv*divPart+s.wBal*bal)/W,trPart,divPart,bal,value,pos,trend,y,ex,days,w,tgt}
+  const trPart=.55*value+.25*health+.20*sustain,divPart=.8*yScore+.2*exBonus;
+  return {total:(s.wTR*trPart+s.wDiv*divPart+s.wBal*bal)/W,trPart,divPart,bal,value,pos,trend,y,ex,days,w,ft}
 }
-
-function dividendsThisMonth(d){let sum=0;
-  state.funds.forEach(f=>{const b=new Date(d.getFullYear(),d.getMonth()-(f.lag||0),1);
-    if(exInMonth(f,b.getFullYear(),b.getMonth())){sum+=f.shares*(f.freq>=12?f.divs[0]:annualDiv(f)/f.freq)}});return sum}
-
+function monthPayouts(d){const out=state.funds.map(()=>0);
+  state.funds.forEach((f,i)=>{if(!usable(f))return;const b=new Date(d.getFullYear(),d.getMonth()-(f.lag||0),1);
+    if(exInMonth(f,b.getFullYear(),b.getMonth()))out[i]=f.shares*(f.freq>=12?f.divs[0]:annualDiv(f)/f.freq)});return out}
 function buildPlan(cash,buyDate){
   const h=state.funds.map(f=>f.shares),buys=state.funds.map(()=>0);let left=cash;
   for(let k=0;k<2000;k++){let best=-1,bs=-1;
-    state.funds.forEach((f,i)=>{if(f.price>0&&f.price<=left){const sc=scoreFund(f,i,h,buyDate).total;if(sc>bs){bs=sc;best=i}}});
+    state.funds.forEach((f,i)=>{if(usable(f)&&f.price<=left){const sc=scoreFund(f,i,h,buyDate).total;if(sc>bs){bs=sc;best=i}}});
     if(best<0)break;h[best]++;buys[best]++;left-=state.funds[best].price}
   return {buys,left}
 }
+function projection(maxM=240){const s=state.settings,t=totals(),y=t.value>0?t.income/t.value:0;let inc=t.income/12;const pts=[inc];
+  for(let m=1;m<=maxM;m++){if(y<=0)break;inc+=(s.contrib+inc)*y/12;inc*=1+(s.drift/100)/12;pts.push(inc);if(inc>=s.goal&&m>=6&&pts.length>(pts.findIndex(v=>v>=s.goal)+6))break}
+  return pts}
+function snapshot(){const t=totals();let cost=0;state.funds.forEach(f=>{if(f.avgCost>0)cost+=f.shares*f.avgCost});
+  const m=monthKey(new Date());state.history=state.history.filter(h=>h.m!==m);state.history.push({m,income:t.income/12,value:t.value,cost});state.history.sort((a,b)=>a.m<b.m?-1:1);if(state.history.length>120)state.history.shift()}
 
-function etaMonths(){const s=state.settings,t=totals(),y=t.value>0?t.income/t.value:0;let inc=t.income/12;
-  if(inc>=s.goal)return 0;if(y<=0)return null;
-  for(let m=1;m<=600;m++){inc+=(s.contrib+inc)*y/12;inc*=1+(s.drift/100)/12;if(inc>=s.goal)return m}return null}
+/* ---------- charts ---------- */
+const NS="http://www.w3.org/2000/svg";
+function niceStep(raw){const p=Math.pow(10,Math.floor(Math.log10(raw||1)));const n=raw/p;return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p}
+function attachTips(box){let tip=box.querySelector(".tip");if(!tip){tip=document.createElement("div");tip.className="tip";tip.hidden=true;box.appendChild(tip)}
+  box.querySelectorAll("[data-tip]").forEach(el=>{
+    const show=e=>{const r=box.getBoundingClientRect();tip.innerHTML=el.getAttribute("data-tip");tip.hidden=false;
+      const x=(e.clientX??r.left)-r.left,y=(e.clientY??r.top)-r.top;tip.style.left=clamp(x,70,r.width-70)+"px";tip.style.top=Math.max(y,30)+"px"};
+    el.addEventListener("pointerenter",show);el.addEventListener("pointermove",show);el.addEventListener("pointerleave",()=>tip.hidden=true)})}
 
+function drawGoal(){
+  const box=$("goalChart"),W=Math.max(300,box.clientWidth||600),H=220,L=52,R=14,T=22,B=26;
+  const s=state.settings,pts=projection();
+  const now=new Date(),nowM=new Date(now.getFullYear(),now.getMonth(),1);
+  const hist=state.history.map(h=>{const [y,m]=h.m.split("-").map(Number);return {i:(y-nowM.getFullYear())*12+(m-1-nowM.getMonth()),v:h.income}}).filter(h=>h.i<=0);
+  const minI=Math.min(0,...hist.map(h=>h.i)),maxI=Math.max(12,pts.length-1);
+  const yMax=Math.max(s.goal*1.12,...pts)*1.02,step=niceStep(yMax/4);
+  const x=i=>L+(i-minI)/(maxI-minI)*(W-L-R),y=v=>T+(1-v/yMax)*(H-T-B);
+  let g=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Projected monthly income reaching the goal">`;
+  for(let v=0;v<=yMax;v+=step){g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">${v>=1000?"$"+(v/1000).toFixed(v%1000?1:0)+"k":"$"+v}</text>`}
+  const span=maxI-minI,stepM=span>60?24:span>30?12:span>14?6:3;
+  for(let i=Math.ceil(minI/stepM)*stepM;i<=maxI;i+=stepM){const d=new Date(nowM.getFullYear(),nowM.getMonth()+i,1);
+    g+=`<text x="${x(i)}" y="${H-6}" text-anchor="middle">${i===0?"Now":stepM>=12?d.getFullYear():d.toLocaleDateString("en-US",{month:"short",year:"2-digit"})}</text>`}
+  g+=`<line x1="${L}" x2="${W-R}" y1="${y(s.goal)}" y2="${y(s.goal)}" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  g+=`<text x="${W-R}" y="${y(s.goal)-7}" text-anchor="end" class="lbl">Goal ${usd(s.goal)}/mo</text>`;
+  const path=pts.map((v,i)=>`${i?"L":"M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join("");
+  g+=`<path d="${path} L${x(pts.length-1)},${y(0)} L${x(0)},${y(0)}Z" fill="var(--s1)" opacity=".10"/>`;
+  g+=`<path d="${path}" fill="none" stroke="var(--s1)" stroke-width="2" stroke-linejoin="round"/>`;
+  if(hist.length>1)g+=`<path d="${hist.map((h,k)=>`${k?"L":"M"}${x(h.i)},${y(h.v)}`).join("")}" fill="none" stroke="var(--s1)" stroke-width="2" opacity=".55"/>`;
+  hist.forEach(h=>g+=`<circle cx="${x(h.i)}" cy="${y(h.v)}" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>`);
+  const gi=pts.findIndex(v=>v>=s.goal);
+  if(gi>0){const d=new Date(nowM.getFullYear(),nowM.getMonth()+gi,1);
+    g+=`<circle cx="${x(gi)}" cy="${y(pts[gi])}" r="5" fill="var(--surface)" stroke="var(--s1)" stroke-width="2.5"/>`;
+    const lx=x(gi),anchor=lx>W*.8?"end":lx<W*.2?"start":"middle";
+    g+=`<text x="${lx}" y="${y(pts[gi])+20}" text-anchor="${anchor}" class="lbl">${d.toLocaleDateString("en-US",{month:"short",year:"numeric"})}</text>`}
+  g+=`<circle cx="${x(0)}" cy="${y(pts[0])}" r="4.5" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>`;
+  g+=`<line id="gx" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="var(--muted)" stroke-width="1" visibility="hidden"/>`;
+  g+=`<rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="transparent" id="ghit"/></svg>`;
+  box.innerHTML=g;
+  const tip=document.createElement("div");tip.className="tip";tip.hidden=true;box.appendChild(tip);
+  const hit=box.querySelector("#ghit"),gx=box.querySelector("#gx");
+  const move=e=>{const r=box.getBoundingClientRect(),sx=(e.clientX-r.left)*(W/r.width);
+    const i=Math.round(minI+(sx-L)/(W-L-R)*(maxI-minI));if(i<minI||i>maxI){tip.hidden=true;return}
+    const d=new Date(nowM.getFullYear(),nowM.getMonth()+i,1);let v,lab;
+    if(i<=0){const h=hist.find(h=>h.i===i);if(i<0&&!h){tip.hidden=true;gx.setAttribute("visibility","hidden");return}v=i===0?pts[0]:h.v;lab=i===0?"Now":"Recorded"}
+    else if(i<pts.length){v=pts[i];lab="Projected"}else{tip.hidden=true;return}
+    gx.setAttribute("x1",x(i));gx.setAttribute("x2",x(i));gx.setAttribute("visibility","visible");
+    tip.innerHTML=`${d.toLocaleDateString("en-US",{month:"short",year:"numeric"})} · ${lab} <b>${usd(v)}</b>/mo`;tip.hidden=false;
+    tip.style.left=clamp(x(i)*r.width/W,80,r.width-80)+"px";tip.style.top=(y(v)*r.width/W)+"px"};
+  hit.addEventListener("pointermove",move);hit.addEventListener("pointerdown",move);
+  hit.addEventListener("pointerleave",()=>{tip.hidden=true;gx.setAttribute("visibility","hidden")});
+}
+
+function drawDrift(){
+  const box=$("driftChart"),W=Math.max(300,box.clientWidth||600),w=catWeights(),tv=totals().value;
+  const rows=CATS.filter(c=>w[c.id]>.001||catTarget(c.id)>0).map(c=>({c,d:w[c.id]-catTarget(c.id)}));
+  const rowH=30,T=6,H=T+rows.length*rowH+6,L=Math.min(150,W*.36),R=58,mid=L+(W-L-R)/2;
+  const m=Math.max(.05,...rows.map(r=>Math.abs(r.d)));const sx=v=>v/m*(W-L-R)/2;
+  let g=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Sector drift from target">`;
+  g+=`<line x1="${mid}" x2="${mid}" y1="${T-2}" y2="${H-4}" stroke="var(--muted)" stroke-width="1"/>`;
+  rows.forEach((r,k)=>{const cy=T+k*rowH+rowH/2,len=Math.abs(sx(r.d)),over=r.d>0,col=over?"var(--s2)":"var(--s1)";
+    const bx=over?mid:mid-len;const lab=`${r.d>0?"+":""}${(r.d*100).toFixed(0)} pts`;
+    const tipTxt=`${esc(r.c.label)} · ${pct(w[r.c.id],0)} now vs ${pct(catTarget(r.c.id),0)} target · <b>${sgnUsd(-r.d*tv)}</b> to match`;
+    g+=`<text x="${L-10}" y="${cy+4}" text-anchor="end" class="lbl" style="font-weight:500">${esc(r.c.label)}</text>`;
+    if(len>.5)g+=`<rect x="${bx}" y="${cy-7}" width="${Math.max(len,2)}" height="14" rx="4" fill="${col}"/>`;
+    g+=`<text x="${over?mid+len+6:mid-len-6}" y="${cy+4}" text-anchor="${over?"start":"end"}" class="val">${Math.abs(r.d)<.005?"on target":lab}</text>`;
+    g+=`<rect x="0" y="${cy-rowH/2}" width="${W}" height="${rowH}" fill="transparent" data-tip="${tipTxt}"/>`});
+  g+=`</svg>`;box.innerHTML=g;attachTips(box)}
+
+function drawTR(rows){
+  const box=$("trChart");
+  if(!rows.length){box.innerHTML=`<p class="hint" style="font-size:.88rem">Add your average cost per share to any holding (under Fund data or Edit holdings) to see its total return here.</p>`;$("trLegend").hidden=true;return}
+  $("trLegend").hidden=false;
+  const W=Math.max(300,box.clientWidth||600),rowH=32,T=4,H=T+rows.length*rowH+20,L=62,R=64;
+  const lo=Math.min(0,...rows.map(r=>Math.min(r.p,r.p+r.d))),hi=Math.max(.02,...rows.map(r=>Math.max(r.p,0)+r.d));
+  const pad=(hi-lo)*.04,a=lo-pad*(lo<0?1:0),b=hi+pad;const x=v=>L+(v-a)/(b-a)*(W-L-R);
+  let g=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Total return by holding">`;
+  const st=niceStep((b-a)/4);for(let v=Math.ceil(a/st)*st;v<=b;v+=st){g+=`<line x1="${x(v)}" x2="${x(v)}" y1="${T}" y2="${H-18}" stroke="var(--grid)"/><text x="${x(v)}" y="${H-4}" text-anchor="middle">${(v*100).toFixed(0)}%</text>`}
+  g+=`<line x1="${x(0)}" x2="${x(0)}" y1="${T}" y2="${H-18}" stroke="var(--muted)"/>`;
+  rows.forEach((r,k)=>{const cy=T+k*rowH+rowH/2,tot=r.p+r.d;
+    const p0=Math.min(x(0),x(r.p)),pw=Math.abs(x(r.p)-x(0));
+    const ds=r.p>=0?x(r.p):x(0),dw=x(r.d)-x(0);
+    g+=`<text x="${L-10}" y="${cy+4}" text-anchor="end" class="lbl">${esc(r.f.tk)}</text>`;
+    if(pw>.5)g+=`<rect x="${p0}" y="${cy-6}" width="${pw}" height="12" rx="3" fill="var(--s1)"/>`;
+    if(dw>.5)g+=`<rect x="${ds+(r.p>=0&&pw>.5?2:0)}" y="${cy-6}" width="${Math.max(dw-(r.p>=0&&pw>.5?2:0),1)}" height="12" rx="3" fill="var(--s3)"/>`;
+    g+=`<circle cx="${x(tot)}" cy="${cy}" r="4" fill="var(--ink)" stroke="var(--surface)" stroke-width="2"/>`;
+    g+=`<text x="${W-R+8}" y="${cy+4}" class="val" style="font-weight:600">${sgnPct(tot)}</text>`;
+    g+=`<rect x="0" y="${cy-rowH/2}" width="${W}" height="${rowH}" fill="transparent" data-tip="${esc(r.f.tk)} · price ${sgnUsd(r.pg)} (${sgnPct(r.p)}) + distributions ${usd(r.dist)} = <b>${sgnUsd(r.pg+r.dist)}</b>"/>`});
+  g+=`</svg>`;box.innerHTML=g;attachTips(box)}
+
+/* ---------- main render ---------- */
 function render(){
-  const buyDate=$("buyDate").value?parseDate($("buyDate").value):new Date(), s=state.settings;
+  const buyDate=$("buyDate").value?parseDate($("buyDate").value):new Date(),s=state.settings;
   const t=totals(),mInc=t.income/12;
   $("incomeNow").textContent=usd(mInc);$("goalLabel").textContent=usd(s.goal)+" / mo";
-  $("goalBar").style.width=clamp(mInc/s.goal)*100+"%";
+  $("goalBar").style.width=clamp(mInc/(s.goal||1))*100+"%";
   $("pValue").textContent=usd(t.value);$("pYield").textContent=t.value?pct(t.income/t.value):"–";
-  const eta=etaMonths();
-  if(eta===0){$("pEta").textContent="Reached";$("etaNote").textContent="Current holdings already cover the goal."}
-  else if(eta===null){$("pEta").textContent="50+ yrs";$("etaNote").textContent="At these settings the goal isn't reached within 50 years."}
-  else{const d=new Date(buyDate.getFullYear(),buyDate.getMonth()+eta,1);$("pEta").textContent=eta>=24?(eta/12).toFixed(1)+" yrs":eta+" mo";
-    $("etaNote").textContent=`About ${d.toLocaleDateString("en-US",{month:"short",year:"numeric"})}, reinvesting all distributions plus ${usd(s.contrib)}/mo at today's blended yield, with distributions changing ${s.drift>=0?"+":""}${s.drift}%/yr. ${usd(s.goal-mInc)}/mo to go.`}
+  const pts=projection(),gi=pts.findIndex(v=>v>=s.goal);
+  if(gi===0){$("pEta").textContent="Reached";$("etaNote").textContent="Current holdings already cover the goal."}
+  else if(gi<0){$("pEta").textContent="20+ yrs";$("etaNote").textContent="At these settings the goal isn't reached within 20 years."}
+  else{const d=new Date(buyDate.getFullYear(),buyDate.getMonth()+gi,1);$("pEta").textContent=gi>=24?(gi/12).toFixed(1)+" yrs":gi+" mo";
+    $("etaNote").textContent=`About ${d.toLocaleDateString("en-US",{month:"long",year:"numeric"})}, reinvesting all distributions plus ${usd(s.contrib)}/mo at today's ${pct(t.value?t.income/t.value:0)} blended yield, with distributions changing ${s.drift>=0?"+":""}${s.drift}%/yr. ${usd(Math.max(0,s.goal-mInc))}/mo to go.`}
+  drawGoal();
 
-  const divM=dividendsThisMonth(buyDate);
+  const pay=monthPayouts(buyDate),divM=pay.reduce((a,b)=>a+b,0);
   if(!cashTouched)$("cash").value=(s.contrib+divM).toFixed(2);
   $("cashNote").textContent=`Suggested: ${usd(s.contrib)} new money + about ${usd(divM,2)} in distributions paid in ${buyDate.toLocaleDateString("en-US",{month:"long"})}${cashTouched?". You've entered your own amount.":"."}`;
   const cash=parseFloat($("cash").value)||0;
 
   const h0=state.funds.map(f=>f.shares);
-  const scored=state.funds.map((f,i)=>({f,i,sc:scoreFund(f,i,h0,buyDate)})).sort((a,b)=>b.sc.total-a.sc.total);
+  const scored=state.funds.map((f,i)=>({f,i,sc:usable(f)?scoreFund(f,i,h0,buyDate):null})).sort((a,b)=>(b.sc?b.sc.total:-1)-(a.sc?a.sc.total:-1));
   plan=buildPlan(cash,buyDate);
   const lines=state.funds.map((f,i)=>({f,n:plan.buys[i]})).filter(x=>x.n>0).sort((a,b)=>b.n*b.f.price-a.n*a.f.price);
   if(!lines.length){$("tHead").textContent=cash>0?"Not enough cash for a whole share":"Enter the cash you're investing";$("tLines").innerHTML="";$("tAdd").textContent="$0";$("record").disabled=true}
@@ -409,14 +637,16 @@ function render(){
     $("tAdd").textContent=usd(lines.reduce((a,l)=>a+l.n*annualDiv(l.f),0)/12,2)}
   $("tLeft").textContent=usd(plan.left,2);
 
-  $("funds").innerHTML=scored.map((x,r)=>{const {f,sc}=x,chips=[];
-    chips.push(`<span class="chip cat">${sw(f.cat)}${catLabel(f.cat)}</span>`);
+  $("funds").innerHTML=scored.map((x,r)=>{const {f,sc}=x;
+    if(!sc)return `<article class="fund"><div class="fund-head"><span class="rank">–</span><div class="tk-name"><b>${esc(f.tk)}<span class="chip warn">needs price &amp; payouts</span></b><span class="nm">${esc(f.name)}</span></div><div></div></div><div class="hint">Open ${esc(f.tk)} under Fund data and enter its price and recent distributions to include it.</div></article>`;
+    const chips=[];
+    chips.push(`<span class="chip cat">${sw(f.cat)}${catOf(f.cat).label}</span>`);
     chips.push(`<span class="chip ${sc.pos<.35?"good":sc.pos>.75?"warn":""}">${pct(sc.pos,0)} of 52-wk range</span>`);
     chips.push(`<span class="chip">${pct(sc.y)} yield</span>`);
     if(f.freq>=12&&f.divs.length>=6)chips.push(`<span class="chip ${sc.trend<-.05?"bad":sc.trend<-.01?"warn":sc.trend>.01?"good":""}">payout ${sc.trend>=0?"+":""}${pct(sc.trend)} vs prior 3</span>`);
     if(sc.y>.18)chips.push(`<span class="chip warn">yield likely includes NAV</span>`);
     if(sc.ex)chips.push(`<span class="chip ${sc.days>=1&&sc.days<=10?"good":""}">ex-div ~${sc.ex.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</span>`);
-    chips.push(`<span class="chip">${pct(sc.w,0)} held · target ${pct(sc.tgt,0)}</span>`);
+    if(f.avgCost>0)chips.push(`<span class="chip ${f.price>=f.avgCost?"good":"bad"}">${sgnPct(f.price/f.avgCost-1)} vs your cost</span>`);
     const part=(lab,v)=>`<div class="part"><span class="lab">${lab}</span><span class="pb"><i style="width:${v*100}%"></i></span><span class="val">${Math.round(v*100)}</span></div>`;
     const buying=plan.buys[x.i];
     return `<article class="fund ${r===0?"top":""}">
@@ -430,107 +660,261 @@ function render(){
       ${f.note?`<div class="hint">${esc(f.note)}</div>`:""}
     </article>`}).join("");
 
-  renderDiversity();
+  renderRebalance(buyDate,h0);
+  renderTR();
+  renderSuggest();
 }
 
-function renderDiversity(){
-  const m=catMix();const used=CATS.filter(c=>m[c.id]);
-  $("stackNow").innerHTML=used.map(c=>`<i style="width:${m[c.id].w*100}%;background:var(--c-${c.id})" title="${c.label}"></i>`).join("");
-  $("stackTgt").innerHTML=used.map(c=>`<i style="width:${m[c.id].t*100}%;background:var(--c-${c.id})" title="${c.label}"></i>`).join("");
-  $("legend").innerHTML=used.map(c=>`<div class="lg">${sw(c.id)}<span>${c.label}</span><span class="v"><b>${pct(m[c.id].w,0)}</b> → ${pct(m[c.id].t,0)}</span></div>`).join("");
-  const nas=m.nas?m.nas.w:0;const over=used.map(c=>({c,d:m[c.id].w-m[c.id].t})).sort((a,b)=>b.d-a.d)[0];
-  const monthly=state.settings.contrib+totals().income/12,tv=totals().value;
-  const yrs=over&&over.d>.02?Math.log(m[over.c.id].w/m[over.c.id].t)/Math.log(1+monthly*12/tv):0;
-  let html="";
-  if(nas>.6)html+=`<div class="callout"><b>${pct(nas,0)} of your money rides on the Nasdaq-100 and tech.</b><span>The option-income funds sell calls on those same stocks, so in a tech drawdown their prices and payouts fall together. Only ${pct(m.energy?m.energy.w:0,0)} sits outside that trade.</span></div>`;
-  if(over&&over.d>.02)html+=`<div class="callout"><b>${over.c.label} is ${pct(over.d,0)} over target.</b><span>Steering only new money (about ${usd(monthly)}/mo against ${usd(tv)}), closing that gap takes roughly ${yrs>0?yrs.toFixed(1):"–"} years without selling anything.</span></div>`;
-  if(!html)html=`<div class="callout ok"><b>Allocation is within 2 points of target everywhere.</b><span>The planner will keep new buys close to these weights.</span></div>`;
+function renderRebalance(buyDate,h0){
+  const w=catWeights(),used=CATS.filter(c=>w[c.id]>.001||catTarget(c.id)>0),tv=totals().value;
+  const seg=(id,v)=>v>.001?`<i style="width:${v*100}%;background:${cvar(id)}"></i>`:"";
+  $("stackNow").innerHTML=used.map(c=>seg(c.id,w[c.id])).join("");
+  $("stackTgt").innerHTML=used.map(c=>seg(c.id,catTarget(c.id))).join("");
+  drawDrift();
+  const nas=w.nas;const outside=1-w.nas;let html="";
+  if(nas>.6)html+=`<div class="callout"><b>${pct(nas,0)} of your money rides on the Nasdaq-100 and tech.</b><span>Option-income funds sell calls on those same stocks, so in a tech drawdown their prices and payouts fall together. ${pct(outside,0)} sits outside that trade.</span></div>`;
+  const over=CATS.map(c=>({c,d:w[c.id]-catTarget(c.id)})).sort((a,b)=>b.d-a.d)[0];
+  const monthly=state.settings.contrib+totals().income/12;
+  if(over&&over.d>.02&&catTarget(over.c.id)>0){const need=tv*w[over.c.id]/catTarget(over.c.id)-tv;const mo=need/monthly;
+    html+=`<div class="callout"><b>${over.c.label} is ${(over.d*100).toFixed(0)} points over target.</b><span>With new money only (about ${usd(monthly)}/mo), getting it to target takes about ${mo>=24?(mo/12).toFixed(1)+" years":Math.ceil(mo)+" months"} if every dollar goes elsewhere.</span></div>`}
+  if(!html)html=`<div class="callout ok"><b>Every sector is within 2 points of target.</b><span>New buys will keep it there.</span></div>`;
   $("divCallout").innerHTML=html;
-  const have=new Set(state.funds.map(f=>f.tk));
-  const allIn=Object.keys(PLAN_TARGETS).every(k=>have.has(k))&&state.funds.every(f=>PLAN_TARGETS[f.tk]==null||f.target===PLAN_TARGETS[f.tk]);
-  $("applyPlan").disabled=allIn;$("applyPlan").textContent=allIn?"Diversified targets applied":"Apply diversified targets";
-  $("sugg").innerHTML=SUGGEST.map(sg=>{const added=have.has(sg.tk);
-    return `<div class="sg"><div class="sg-head"><b>${sg.tk}</b>${added?`<span class="chip good">added</span>`:`<button type="button" class="sm" data-add="${sg.tk}">Add</button>`}</div>
-      <span class="chip cat" style="align-self:flex-start">${sw(sg.cat)}${catLabel(sg.cat)}</span>
+
+  // recommendations
+  const recs=[];const buyDateL=buyDate;
+  const gaps=CATS.map(c=>({c,gap:(catTarget(c.id)-w[c.id])*tv})).filter(g=>g.gap>tv*.01).sort((a,b)=>b.gap-a.gap);
+  gaps.forEach(g=>{const inCat=state.funds.map((f,i)=>({f,i})).filter(x=>x.f.cat===g.c.id&&usable(x.f));
+    if(inCat.length){const best=inCat.map(x=>({...x,s:scoreFund(x.f,x.i,h0,buyDateL).total})).sort((a,b)=>b.s-a.s)[0];
+      recs.push(`<div class="rec"><span class="tag buy">Buy</span><div><b>${esc(best.f.tk)}</b> for ${g.c.label}<p>${g.c.label} is ${usd(g.gap)} below target. ${esc(best.f.tk)} scores highest there today${inCat.length>1?` of ${inCat.length} funds`:""}.</p></div></div>`)}
+    else{const sug=CATALOG.find(c=>c.cat===g.c.id&&SUGGEST.includes(c.tk))||CATALOG.find(c=>c.cat===g.c.id);
+      recs.push(`<div class="rec"><span class="tag add">Add</span><div><b>A fund for ${g.c.label}</b>${sug?` such as ${esc(sug.tk)}`:""}<p>Your target is ${pct(catTarget(g.c.id),0)} but nothing you hold covers it, so new money can't reach it yet.${sug?` <button type="button" class="sm" data-addtk="${sug.tk}">Add ${esc(sug.tk)}</button>`:""}</p></div></div>`)}});
+  if(rebalMode==="sell"){
+    CATS.map(c=>({c,ex:(w[c.id]-catTarget(c.id))*tv})).filter(o=>o.ex>tv*.02).sort((a,b)=>b.ex-a.ex).forEach(o=>{
+      let left=o.ex;const funds=state.funds.map((f,i)=>({f,i})).filter(x=>x.f.cat===o.c.id&&x.f.shares>0&&usable(x.f))
+        .map(x=>({...x,gl:x.f.avgCost>0?(x.f.price-x.f.avgCost)*x.f.shares:null,s:scoreFund(x.f,x.i,h0,buyDateL).total}))
+        .sort((a,b)=>((a.gl!=null&&a.gl<0)?-1:0)-((b.gl!=null&&b.gl<0)?-1:0)||a.s-b.s);
+      funds.forEach(x=>{if(left<=x.f.price)return;const sh=Math.min(Math.floor(x.f.shares*.5),Math.floor(left/x.f.price));if(sh<1)return;left-=sh*x.f.price;
+        const per=x.f.avgCost>0?x.f.price-x.f.avgCost:null;
+        const why=per==null?"Add your average cost to see the tax effect.":per<0?`It's below your cost, so selling realizes a loss of about ${usd(-per*sh)} that can offset gains.`:`It's above your cost, so selling realizes a gain of about ${usd(per*sh)} in a taxable account.`;
+        recs.push(`<div class="rec"><span class="tag trim">Trim</span><div><b>${esc(x.f.tk)}: sell ${sh} sh</b> (~${usd(sh*x.f.price)})<p>Brings ${o.c.label} toward target. ${why} </p></div></div>`)})});
+    if(!recs.some(r=>r.includes("tag trim")))recs.push(`<div class="rec"><span class="tag trim">Trim</span><div><b>No sells needed</b><p>No sector is more than 2 points over target.</p></div></div>`);
+    recs.push(`<p class="hint">Sells are a starting point, not a trade list. In an IRA or other tax-advantaged account, gains don't matter; in a taxable account, check holding periods first.</p>`)}
+  if(!recs.length)recs.push(`<p class="hint">Nothing to rebalance. Every sector is within 1% of target.</p>`);
+  $("recs").innerHTML=recs.join("");
+  $("recs").querySelectorAll("[data-addtk]").forEach(b=>b.addEventListener("click",()=>addHolding(b.dataset.addtk)));
+}
+
+function trRows(){return state.funds.filter(f=>f.avgCost>0&&f.shares>0).map(f=>{const cost=f.shares*f.avgCost,pg=f.shares*f.price-cost;
+  return {f,cost,pg,dist:f.collected||0,p:pg/cost,d:(f.collected||0)/cost}}).sort((a,b)=>(b.p+b.d)-(a.p+a.d))}
+function renderTR(){
+  const rows=trRows();const cost=rows.reduce((a,r)=>a+r.cost,0),pg=rows.reduce((a,r)=>a+r.pg,0),dist=rows.reduce((a,r)=>a+r.dist,0);
+  const missing=state.funds.filter(f=>f.shares>0&&!(f.avgCost>0)).map(f=>f.tk);
+  $("trCost").textContent=cost?usd(cost):"–";
+  const cls=(el,v,txt)=>{el.textContent=txt;el.className=v>0?"pos":v<0?"neg":""};
+  cls($("trPrice"),pg,cost?sgnUsd(pg):"–");$("trDist").textContent=cost?usd(dist):"–";
+  cls($("trTotal"),pg+dist,cost?`${sgnPct((pg+dist)/cost)}`:"–");
+  drawTR(rows);
+  $("trNote").textContent=(missing.length?`Missing average cost for ${missing.join(", ")}. `:"")+(rows.length?"Distributions are what you entered plus the planner's estimate for each month you record a purchase.":"");
+}
+
+function renderSuggest(){
+  const have=new Set(state.funds.map(f=>f.tk)),w=catWeights();
+  const list=SUGGEST.map(tk=>CATALOG.find(c=>c.tk===tk)).filter(c=>!have.has(c.tk)).sort((a,b)=>(catTarget(b.cat)-w[b.cat])-(catTarget(a.cat)-w[a.cat]));
+  $("suggPanel").hidden=!list.length;
+  $("sugg").innerHTML=list.map(sg=>{const gap=catTarget(sg.cat)-w[sg.cat];
+    return `<div class="sg"><div class="sg-head"><b>${sg.tk}</b><button type="button" class="sm" data-add="${sg.tk}">Add</button></div>
+      <div class="chips"><span class="chip cat">${sw(sg.cat)}${catOf(sg.cat).label}</span>${gap>.01?`<span class="chip good">${(gap*100).toFixed(0)} pts under target</span>`:catTarget(sg.cat)===0?`<span class="chip">no target set</span>`:""}</div>
       <p>${sg.why}</p>
       <div class="meta"><span>${pct(yieldOf(sg))} yield</span><span>${pct(rangePos(sg),0)} of range</span><span>${usd(sg.price,2)}</span></div></div>`}).join("");
-  $("sugg").querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click",()=>{addFund(structuredClone(SUGGEST.find(s=>s.tk===b.dataset.add)));toast(b.dataset.add+" added as a candidate")}));
+  $("sugg").querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click",()=>addHolding(b.dataset.add)));
 }
 
-function addFund(f){delete f.why;state.funds.push(f);save();buildEditors();render()}
+function addHolding(tk,name){tk=tk.toUpperCase();if(state.funds.some(f=>f.tk===tk)){toast(tk+" is already in the planner");return}
+  const f=fromCatalog(tk)||{tk,name:name||tk,cat:"other",shares:0,avgCost:null,collected:0,price:0,low:0,high:0,freq:12,divs:[],sched:{type:"firstBiz"},lag:0,note:""};
+  state.funds.push(f);save();buildEditors();render();
+  if(!usable(f)){const d=$("editors").children[state.funds.length-1];if(d){d.open=true;d.scrollIntoView({block:"center",behavior:"smooth"})}toast(tk+" added. Enter its price and payouts.")}
+  else toast(tk+" added as a candidate")}
 
+/* ---------- fund editors ---------- */
+function fundFields(f,i,pfx){const id=k=>`${pfx}-${k}-${i}`;
+  return `<div class="fields three">
+    <label for="${id("shares")}">Shares<input id="${id("shares")}" data-i="${i}" data-k="shares" type="number" step="0.001" min="0" value="${f.shares}"></label>
+    <label for="${id("avg")}">Avg cost / share<input id="${id("avg")}" data-i="${i}" data-k="avgCost" type="number" step="0.01" min="0" value="${f.avgCost??""}" placeholder="optional"></label>
+    <label for="${id("price")}">Price<input id="${id("price")}" data-i="${i}" data-k="price" type="number" step="0.01" min="0" value="${f.price||""}"></label>
+    <label for="${id("low")}">52-week low<input id="${id("low")}" data-i="${i}" data-k="low" type="number" step="0.01" value="${f.low||""}"></label>
+    <label for="${id("high")}">52-week high<input id="${id("high")}" data-i="${i}" data-k="high" type="number" step="0.01" value="${f.high||""}"></label>
+    <label for="${id("freq")}">Payments / yr<select id="${id("freq")}" data-i="${i}" data-k="freq">${[12,4,2,1].map(n=>`<option value="${n}"${f.freq===n?" selected":""}>${n}</option>`).join("")}</select></label>
+    <label for="${id("cat")}">Sector<select id="${id("cat")}" data-i="${i}" data-k="cat">${CATS.map(c=>`<option value="${c.id}"${c.id===f.cat?" selected":""}>${c.label}</option>`).join("")}</select></label>
+    <label for="${id("coll")}">Distributions received ($)<input id="${id("coll")}" data-i="${i}" data-k="collected" type="number" step="0.01" min="0" value="${f.collected?(+f.collected).toFixed(2):""}" placeholder="optional"></label>
+    <label for="${id("divs")}" class="full">Recent distributions per share, newest first<input id="${id("divs")}" data-i="${i}" data-k="divs" type="text" value="${f.divs.join(", ")}" placeholder="0.52, 0.53, 0.51"></label>
+  </div>`}
+function applyField(f,k,el){
+  if(k==="divs"){const a=el.value.split(/[,\s]+/).map(Number).filter(v=>v>0);f.divs=a}
+  else if(k==="cat")f.cat=el.value;
+  else if(k==="avgCost"){const v=parseFloat(el.value);f.avgCost=v>0?v:null}
+  else{const v=parseFloat(el.value);if(!isNaN(v))f[k]=k==="freq"?Math.max(1,Math.round(v)):Math.max(0,v);else if(k==="collected")f.collected=0}
+  if(k==="price"&&f.price>0){if(!(f.low>0))f.low=f.price;if(!(f.high>0))f.high=f.price}
+}
+function sumHtml(f){return `<span style="display:flex;align-items:center;gap:8px">${sw(f.cat)} ${esc(f.tk)}${usable(f)?"":` <span class="chip warn">needs data</span>`}</span><span class="num">${(+f.shares).toLocaleString()} sh · ${f.price?usd(f.price,2):"no price"}</span>`}
 function buildEditors(){
   $("editors").innerHTML=state.funds.map((f,i)=>`<details>
-    <summary><span>${sw(f.cat)} ${esc(f.tk)}</span><span class="num">${f.shares.toLocaleString()} sh · ${usd(f.price,2)}</span></summary>
-    <div class="ed"><div class="fields">
-      <label for="e-price-${i}">Price<input id="e-price-${i}" data-i="${i}" data-k="price" type="number" step="0.01" value="${f.price}"></label>
-      <label for="e-shares-${i}">Shares held<input id="e-shares-${i}" data-i="${i}" data-k="shares" type="number" step="0.001" value="${f.shares}"></label>
-      <label for="e-low-${i}">52-week low<input id="e-low-${i}" data-i="${i}" data-k="low" type="number" step="0.01" value="${f.low}"></label>
-      <label for="e-high-${i}">52-week high<input id="e-high-${i}" data-i="${i}" data-k="high" type="number" step="0.01" value="${f.high}"></label>
-      <label for="e-target-${i}">Target weight (%)<input id="e-target-${i}" data-i="${i}" data-k="target" type="number" step="1" value="${f.target}"></label>
-      <label for="e-cat-${i}">Exposure<select id="e-cat-${i}" data-i="${i}" data-k="cat">${CATS.map(c=>`<option value="${c.id}"${c.id===f.cat?" selected":""}>${c.label}</option>`).join("")}</select></label>
-      <label for="e-freq-${i}">Payments per year<input id="e-freq-${i}" data-i="${i}" data-k="freq" type="number" step="1" min="1" value="${f.freq}"></label>
-      <label class="full" for="e-divs-${i}">Recent distributions, newest first<input id="e-divs-${i}" data-i="${i}" data-k="divs" type="text" value="${f.divs.join(", ")}"></label>
-    </div><span class="hint">Six monthly payouts give a trend signal. Annual income uses the average of the last six (or the last year for less frequent payers).</span>
-    <div class="btn-row"><button type="button" class="danger sm" data-rm="${i}">Remove ${esc(f.tk)}</button></div></div>
-  </details>`).join("");
+    <summary id="sum-${i}">${sumHtml(f)}</summary>
+    <div class="ed">${fundFields(f,i,"e")}<span class="hint">${esc(f.name)}. Six monthly payouts give a trend signal; annual income uses the average of the last six (or the last year for less frequent payers).</span>
+    <div class="btn-row"><button type="button" class="danger sm" data-rm="${i}">Remove ${esc(f.tk)}</button></div></div></details>`).join("");
   $("editors").querySelectorAll("input,select").forEach(el=>el.addEventListener("change",()=>{
-    const f=state.funds[+el.dataset.i],k=el.dataset.k;
-    if(k==="divs"){const a=el.value.split(/[,\s]+/).map(Number).filter(v=>v>0);if(a.length)f.divs=a}
-    else if(k==="cat")f.cat=el.value;
-    else{const v=parseFloat(el.value);if(!isNaN(v))f[k]=k==="freq"?Math.max(1,Math.round(v)):v}
-    save();buildEditors();render();
-    const d=$("editors").children[+el.dataset.i];if(d)d.open=true;
-  }));
+    const i=+el.dataset.i;applyField(state.funds[i],el.dataset.k,el);save();$("sum-"+i).innerHTML=sumHtml(state.funds[i]);render()}));
   $("editors").querySelectorAll("[data-rm]").forEach(b=>b.addEventListener("click",()=>{
     if(!b.dataset.armed){b.dataset.armed="1";b.textContent="Tap again to remove";return}
-    const f=state.funds[+b.dataset.rm];state.funds.splice(+b.dataset.rm,1);lastPurchase=null;$("undo").hidden=true;save();buildEditors();render();toast(f.tk+" removed")}));
+    const f=state.funds.splice(+b.dataset.rm,1)[0];lastPurchase=null;$("undo").hidden=true;save();buildEditors();render();toast(f.tk+" removed")}));
 }
 
+/* ---------- target editor (shared) ---------- */
+function currentMix(){const w=catWeights(),o={};CATS.forEach(c=>o[c.id]=Math.round(w[c.id]*100));return o}
+function buildTargets(listId,presetId,onChange){
+  const w=catWeights(),sum=tgtSum();
+  $(presetId).innerHTML=`<button type="button" data-p="cur">Match my current mix</button><button type="button" data-p="sug">Suggested diversified</button><button type="button" data-p="even">Even across what I hold</button>`;
+  $(presetId).querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+    if(b.dataset.p==="cur")state.catTargets=currentMix();
+    else if(b.dataset.p==="sug")state.catTargets={...SUGGESTED_MIX};
+    else{const held=CATS.filter(c=>w[c.id]>0);const o={};CATS.forEach(c=>o[c.id]=held.includes(c)?Math.round(100/held.length):0);state.catTargets=o}
+    save();onChange()}));
+  $(listId).innerHTML=`<div class="tgt tgt-head"><span></span><span>Sector</span><span style="text-align:right">Target %</span><span style="text-align:right">Now</span></div>`+
+    CATS.map(c=>`<div class="tgt">${sw(c.id)}<label for="${listId}-${c.id}" style="font-size:.9rem;color:var(--ink);font-weight:500">${c.label}</label>
+      <input id="${listId}-${c.id}" type="number" min="0" max="100" step="1" data-c="${c.id}" value="${+state.catTargets[c.id]||0}"><span class="cur">${pct(w[c.id],0)}</span></div>`).join("")+
+    `<div class="tgt-sum"><span class="${Math.round(sum)===100?"":"neg"}">Total ${Math.round(sum)}%</span>${Math.round(sum)===100?"":`<span class="hint">Targets are scaled to 100% when scoring.</span>`}</div>`;
+  $(listId).querySelectorAll("input").forEach(el=>el.addEventListener("change",()=>{state.catTargets[el.dataset.c]=Math.max(0,parseFloat(el.value)||0);save();onChange()}));
+}
+function refreshMainTargets(){buildTargets("targets","presets",()=>{refreshMainTargets();render()});$("tgtSumLbl").textContent=`total ${Math.round(tgtSum())}%`}
+
+/* ---------- search (shared) ---------- */
+function bindSearch(inputId,resultsId,onPick,exclude){
+  const inp=$(inputId),out=$(resultsId);
+  const run=()=>{const q=inp.value.trim().toUpperCase();if(!q){out.hidden=true;out.innerHTML="";return}
+    const ex=new Set(exclude());
+    const hits=CATALOG.filter(c=>!ex.has(c.tk)&&(c.tk.startsWith(q)||c.name.toUpperCase().includes(q))).sort((a,b)=>(b.tk.startsWith(q)-a.tk.startsWith(q))||a.tk.localeCompare(b.tk)).slice(0,6);
+    let html=hits.map(c=>`<button type="button" data-tk="${c.tk}"><b>${c.tk}</b><span>${esc(c.name)}</span>${sw(c.cat)}</button>`).join("");
+    if(/^[A-Z0-9.\-]{1,8}$/.test(q)&&!CATALOG.some(c=>c.tk===q)&&!ex.has(q))html+=`<button type="button" data-tk="${q}" data-new="1"><b>${esc(q)}</b><span>Add as a new fund (you'll enter its data)</span><span></span></button>`;
+    out.innerHTML=html||`<p class="hint" style="padding:10px 12px">Already added, or no match.</p>`;out.hidden=false;
+    out.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{onPick(b.dataset.tk);inp.value="";out.hidden=true;inp.focus()}))};
+  inp.addEventListener("input",run);
+}
+
+/* ---------- onboarding ---------- */
+let ob={step:1,holds:[],editing:false};
+function obStart(editing){
+  ob={step:1,editing,holds:editing?structuredClone(state.funds):[]};state.funds=ob.holds;
+  $("obCancel").hidden=!editing;$("app").hidden=true;$("ob").hidden=false;
+  $("obGoal").value=state.settings.goal;$("obContrib").value=state.settings.contrib;
+  obRender();window.scrollTo(0,0)}
+function obAdd(tk,data){tk=tk.toUpperCase();let h=ob.holds.find(x=>x.tk===tk);
+  if(!h){h=fromCatalog(tk)||{tk,name:tk,cat:"other",shares:0,avgCost:null,collected:0,price:0,low:0,high:0,freq:12,divs:[],sched:{type:"firstBiz"},lag:0,note:""};ob.holds.push(h)}
+  if(data){if(data.shares>0)h.shares=data.shares;if(data.avgCost>0)h.avgCost=data.avgCost;if(data.name&&h.name===h.tk)h.name=data.name;
+    if(data.price>0){h.price=data.price;if(!(h.low>0)||h.low>h.price)h.low=Math.min(h.low||h.price,h.price);if(!(h.high>0)||h.high<h.price)h.high=Math.max(h.high||h.price,h.price)}
+    if(data.annualDividend>0&&data.shares>0&&!h.divs.length){const freq=h.freq||12;h.divs=[+(data.annualDividend/data.shares/freq).toFixed(4)]}}
+  return h}
+function obRenderHolds(){
+  $("obCount").textContent=ob.holds.length?`· ${ob.holds.length}`:"";
+  $("obHolds").innerHTML=ob.holds.length?ob.holds.map((h,i)=>`<div class="hold">
+    <div class="hold-head"><div style="display:flex;flex-direction:column;min-width:0"><b>${esc(h.tk)}</b><span class="nm">${esc(h.name)}</span></div>
+      <div class="btn-row"><span class="chip warn" id="ochip-${i}"${usable(h)?" hidden":""}>needs price &amp; payouts</span><button type="button" class="ghost sm" data-orm="${i}" aria-label="Remove ${esc(h.tk)}">Remove</button></div></div>
+    ${fundFields(h,i,"o")}</div>`).join(""):`<p class="hint" style="font-size:.88rem">Nothing added yet.</p>`;
+  $("obHolds").querySelectorAll("input,select").forEach(el=>el.addEventListener("change",()=>{const h=ob.holds[+el.dataset.i];applyField(h,el.dataset.k,el);const c=$("ochip-"+el.dataset.i);if(c)c.hidden=usable(h)}));
+  $("obHolds").querySelectorAll("[data-orm]").forEach(b=>b.addEventListener("click",()=>{ob.holds.splice(+b.dataset.orm,1);obRenderHolds()}));
+}
+function obRender(){
+  const titles={1:"Add your holdings",2:"Set your goal",3:"Choose your target mix"};
+  $("obTitle").textContent=titles[ob.step];$("obEyebrow").textContent=`${ob.editing?"Edit setup":"Set up"} · step ${ob.step} of 3`;
+  [1,2,3].forEach(n=>{$("obStep"+n).hidden=n!==ob.step;$("st"+n).className=n<=ob.step?"on":""});
+  $("obBack").style.visibility=ob.step>1?"visible":"hidden";
+  $("obNext").textContent=ob.step===3?(ob.editing?"Save changes":"Start planning"):"Continue";
+  if(ob.step===1)obRenderHolds();
+  if(ob.step===2)$("obPri").querySelectorAll(".opt").forEach(b=>b.classList.toggle("on",b.dataset.pri===state.settings.pri));
+  if(ob.step===3){const rerender=()=>buildTargets("obTargets","obPresets",rerender);rerender()}
+}
+function obCommitHolds(){state.funds=ob.holds.filter(h=>h.shares>0||usable(h))}
+$("obNext").addEventListener("click",()=>{
+  if(ob.step===1){const held=ob.holds.filter(h=>h.shares>0);
+    if(!held.length){$("ob1Err").textContent="Add at least one holding with shares to continue.";$("ob1Err").hidden=false;return}
+    const bad=held.filter(h=>!usable(h)).map(h=>h.tk);
+    if(bad.length){$("ob1Err").textContent=`Enter a price and at least one recent distribution for ${bad.join(", ")}, or remove ${bad.length>1?"them":"it"}.`;$("ob1Err").hidden=false;return}
+    $("ob1Err").hidden=true}
+  if(ob.step===2){const g=parseFloat($("obGoal").value),c=parseFloat($("obContrib").value);if(g>0)state.settings.goal=g;if(c>=0)state.settings.contrib=c}
+  if(ob.step<3){ob.step++;obRender();window.scrollTo(0,0);return}
+  obCommitHolds();state.onboarded=true;snapshot();save();cashTouched=false;
+  $("ob").hidden=true;$("app").hidden=false;bindSettings();buildEditors();refreshMainTargets();render();window.scrollTo(0,0);
+  toast(ob.editing?"Changes saved":"You're set up")});
+$("obBack").addEventListener("click",()=>{if(ob.step>1){ob.step--;obRender();window.scrollTo(0,0)}});
+$("obCancel").addEventListener("click",()=>{state=load();$("ob").hidden=true;$("app").hidden=false;bindSettings();buildEditors();refreshMainTargets();render()});
+$("obPri").querySelectorAll(".opt").forEach(b=>b.addEventListener("click",()=>{const p=PRESETS[b.dataset.pri];
+  Object.assign(state.settings,{wTR:p[0],wDiv:p[1],wBal:p[2],pri:b.dataset.pri});obRender()}));
+$("optSearch").addEventListener("click",()=>{$("obSearch").focus();$("obSearch").scrollIntoView({block:"center",behavior:"smooth"})});
+$("optSample").addEventListener("click",()=>{SAMPLE.forEach(([tk,sh,ac])=>obAdd(tk,{shares:sh,avgCost:ac}));obRenderHolds();toast("Sample portfolio added")});
+$("optImg").addEventListener("click",()=>$("imgFile").click());
+bindSearch("obSearch","obResults",tk=>{obAdd(tk);obRenderHolds()},()=>ob.holds.map(h=>h.tk));
+
+/* ---------- screenshot import ---------- */
+const IMG_PROMPT=`This image is a screenshot of a brokerage or portfolio app. Extract every holding (stock, ETF or mutual fund) that shows more than 0 shares.
+Reply with only a JSON array, one object per holding:
+{"ticker": string, "name": string|null, "shares": number, "avgCost": number|null, "price": number|null, "marketValue": number|null, "annualDividend": number|null, "yieldPct": number|null}
+avgCost = average cost per share if shown; price = current price per share if shown; marketValue = position value if shown; annualDividend = yearly dividend income for the whole position if shown; yieldPct = dividend yield as a percent number (7.87 for 7.87%). Use null for anything not visible. Never invent tickers.
+Example: [{"ticker":"JEPQ","name":"JPMorgan Nasdaq Equity Premium Income","shares":1000,"avgCost":null,"price":null,"marketValue":null,"annualDividend":6884.54,"yieldPct":11.58}]`;
+function setStatus(html,busy){const s=$("imgStatus");s.hidden=!html;s.innerHTML=(busy?`<span class="spin" aria-hidden="true"></span>`:"")+`<span>${html}</span>`}
+function ingest(rows,source){let n=0;
+  (rows||[]).forEach(r=>{const tk=String(r.ticker||"").toUpperCase().replace(/[^A-Z0-9.\-]/g,"");const sh=+r.shares;if(!tk||!(sh>0))return;
+    let price=+r.price||0;if(!price&&+r.marketValue>0)price=+r.marketValue/sh;
+    if(!price&&+r.annualDividend>0&&+r.yieldPct>0)price=+r.annualDividend/sh/(+r.yieldPct/100);
+    const cat=CATALOG.find(c=>c.tk===tk);if(cat&&cat.price>0&&!(+r.price>0)&&!(+r.marketValue>0))price=0; // trust built-in price over a derived one
+    obAdd(tk,{shares:sh,avgCost:+r.avgCost||0,price:price>0?+price.toFixed(2):0,name:r.name||"",annualDividend:+r.annualDividend||0});n++});
+  obRenderHolds();
+  setStatus(n?`Found ${n} holding${n>1?"s":""} ${source}. Check the shares below and add your average cost.`:"Couldn't find any holdings in that image. Try a clearer screenshot, or search and add them instead.",false)}
+async function getSample(){try{if(!window.claude||!window.claude.use)return null;const s=await window.claude.use("sample");if(!s)return null;
+  const lim=await s.limits().catch(()=>null);return lim&&lim.images?s:null}catch(e){return null}}
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=()=>rej(new Error("load"));document.head.appendChild(s)})}
+const STOP=new Set(["USD","ETF","Q1","Q2","Q3","Q4","NEOS","INC","LLC","FUND","TOTAL","SHARES","STOCKS","HOME","PM","AM","YTD","DAY","ALL","BUY","SELL","NAV"]);
+function parseOcr(text){const lines=text.split(/\n+/).map(l=>l.trim()).filter(Boolean),rows=[];
+  for(let i=0;i<lines.length;i++){const m=lines[i].match(/^[^A-Za-z0-9]*([A-Z]{1,5})\b/);if(!m||STOP.has(m[1]))continue;
+    let sh=null,amt=null,pc=null;
+    for(let j=i;j<Math.min(lines.length,i+4);j++){const L=lines[j];
+      const s=L.match(/([\d,]+(?:\.\d+)?)\s*Shares?/i);if(s&&sh==null)sh=parseFloat(s[1].replace(/,/g,""));
+      const a=L.match(/\$\s?([\d,]+\.\d{2})/);if(a&&amt==null)amt=parseFloat(a[1].replace(/,/g,""));
+      const p=L.match(/([\d.]+)\s?%/);if(p&&pc==null)pc=parseFloat(p[1]);
+      if(j>i&&/^[^A-Za-z0-9]*[A-Z]{2,5}\b/.test(L)&&!/shares/i.test(L)&&j>i+1)break}
+    if(sh>0){const r={ticker:m[1],shares:sh};if(amt&&pc&&pc<60){r.annualDividend=amt;r.yieldPct=pc}else if(amt)r.marketValue=amt;rows.push(r)}}
+  const seen=new Set();return rows.filter(r=>!seen.has(r.ticker)&&seen.add(r.ticker))}
+$("imgFile").addEventListener("change",async e=>{const file=e.target.files[0];e.target.value="";if(!file)return;
+  setStatus("Reading your screenshot…",true);
+  const sample=await getSample();
+  if(sample){try{const rows=await sample.json(IMG_PROMPT,{images:[file]});ingest(Array.isArray(rows)?rows:[],"with Claude");return}
+    catch(err){if(err&&err.code==="not_granted"){setStatus("Image reading wasn't allowed. Trying on-device text recognition…",true)}
+      else if(err&&err.code==="rate_limited"){setStatus("Too many requests right now. Wait a minute and try again, or search and add instead.",false);return}}}
+  try{if(!window.Tesseract)await loadScript("https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js");
+    setStatus("Recognizing text on this device. This can take 20–30 seconds…",true);
+    const res=await window.Tesseract.recognize(file,"eng");ingest(parseOcr(res.data.text||""),"in the image")}
+  catch(err){setStatus("This page can't read images here. Search and add your holdings instead.",false)}});
+
+/* ---------- main wiring ---------- */
 function bindSettings(){["wTR","wDiv","wBal","goal","contrib","drift"].forEach(k=>{const el=$(k);el.value=state.settings[k];
   el.onchange=()=>{const v=parseFloat(el.value);if(!isNaN(v)){state.settings[k]=v;save();render()}}})}
-function toast(msg){const t=$("toast");t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2200)}
-
-// add-fund form
-$("a-cat").innerHTML=CATS.map(c=>`<option value="${c.id}">${c.label}</option>`).join("");
-function syncAddForm(){const ex=$("a-ex").value,fq=+$("a-freq").value;
-  $("a-day-wrap").hidden=!(ex==="day"||fq<12);$("a-months-wrap").hidden=fq>=12}
-$("a-ex").addEventListener("change",syncAddForm);$("a-freq").addEventListener("change",syncAddForm);syncAddForm();
-$("addForm").addEventListener("submit",e=>{e.preventDefault();const err=$("addErr");
-  const tk=$("a-tk").value.trim().toUpperCase(),price=parseFloat($("a-price").value),low=parseFloat($("a-low").value),high=parseFloat($("a-high").value);
-  const divs=$("a-divs").value.split(/[,\s]+/).map(Number).filter(v=>v>0),fq=+$("a-freq").value;
-  let msg="";
-  if(!/^[A-Z0-9.\-]{1,8}$/.test(tk))msg="Enter a ticker, like SCHD.";
-  else if(state.funds.some(f=>f.tk===tk))msg=tk+" is already in the planner.";
-  else if(!(price>0))msg="Enter the current price.";
-  else if(!(low>0&&high>0&&high>=low))msg="Enter a 52-week low and high, with the high at or above the low.";
-  else if(!divs.length)msg="Enter at least one recent distribution, newest first.";
-  if(msg){err.textContent=msg;err.hidden=false;return}
-  err.hidden=true;
-  const ex=$("a-ex").value,day=Math.min(28,Math.max(1,parseInt($("a-day").value)||15));let sched;
-  if(fq<12){const months=$("a-months").value.split(/[,\s]+/).map(Number).filter(m=>m>=1&&m<=12);sched={type:"months",months:months.length?months:[3,6,9,12],day}}
-  else if(ex==="day")sched={type:"months",months:[1,2,3,4,5,6,7,8,9,10,11,12],day};
-  else if(ex.startsWith("w"))sched={type:"nthWeekday",n:+ex.slice(1),dow:3};
-  else sched={type:ex};
-  addFund({tk,name:$("a-name").value.trim()||tk,cat:$("a-cat").value,shares:parseFloat($("a-shares").value)||0,price,low,high,freq:fq,divs,
-    target:parseFloat($("a-target").value)||0,sched,lag:$("a-lag").checked?1:0,note:""});
-  $("addForm").reset();$("a-target").value=5;$("a-shares").value=0;$("a-day").value=15;$("a-months").value="3, 6, 9, 12";syncAddForm();
-  toast(tk+" added");
-});
-
-$("applyPlan").addEventListener("click",()=>{
-  SUGGEST.forEach(sg=>{if(!state.funds.some(f=>f.tk===sg.tk)){const c=structuredClone(sg);delete c.why;state.funds.push(c)}});
-  state.funds.forEach(f=>{if(PLAN_TARGETS[f.tk]!=null)f.target=PLAN_TARGETS[f.tk]});
-  save();buildEditors();render();toast("Diversified targets applied")});
-
+bindSearch("mSearch","mResults",tk=>addHolding(tk),()=>state.funds.map(f=>f.tk));
+$("editSetup").addEventListener("click",()=>obStart(true));
+$("mNew").addEventListener("click",()=>{rebalMode="new";$("mNew").setAttribute("aria-pressed","true");$("mSell").setAttribute("aria-pressed","false");render()});
+$("mSell").addEventListener("click",()=>{rebalMode="sell";$("mSell").setAttribute("aria-pressed","true");$("mNew").setAttribute("aria-pressed","false");render()});
 const today=new Date();$("buyDate").value=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
 $("buyDate").addEventListener("change",render);
 $("cash").addEventListener("input",()=>{cashTouched=true;render()});
-$("record").addEventListener("click",()=>{if(!plan)return;lastPurchase=state.funds.map(f=>f.shares);
-  plan.buys.forEach((n,i)=>state.funds[i].shares+=n);save();cashTouched=false;$("undo").hidden=false;buildEditors();render();toast("Purchase recorded")});
-$("undo").addEventListener("click",()=>{if(!lastPurchase)return;lastPurchase.forEach((s,i)=>{if(state.funds[i])state.funds[i].shares=s});lastPurchase=null;save();$("undo").hidden=true;buildEditors();render();toast("Purchase undone")});
-$("reset").addEventListener("click",e=>{const b=e.currentTarget;if(b.dataset.armed){state=structuredClone(SEED);save();bindSettings();buildEditors();cashTouched=false;render();b.textContent="Reset all data to seed values";delete b.dataset.armed;toast("Reset to seed values")}else{b.dataset.armed="1";b.textContent="Tap again to confirm reset"}});
-bindSettings();buildEditors();render();
+$("record").addEventListener("click",()=>{if(!plan)return;const buyDate=parseDate($("buyDate").value);
+  lastPurchase=state.funds.map(f=>({shares:f.shares,avgCost:f.avgCost,collected:f.collected}));
+  const pay=monthPayouts(buyDate);
+  state.funds.forEach((f,i)=>{const n=plan.buys[i];f.collected=(+f.collected||0)+pay[i];
+    if(n>0){if(f.avgCost>0)f.avgCost=+((f.avgCost*f.shares+n*f.price)/(f.shares+n)).toFixed(4);else if(f.shares===0)f.avgCost=f.price;f.shares+=n}});
+  snapshot();save();cashTouched=false;$("undo").hidden=false;buildEditors();render();toast("Purchase recorded")});
+$("undo").addEventListener("click",()=>{if(!lastPurchase)return;lastPurchase.forEach((p,i)=>{if(state.funds[i])Object.assign(state.funds[i],p)});lastPurchase=null;snapshot();save();$("undo").hidden=true;buildEditors();render();toast("Purchase undone")});
+$("reset").addEventListener("click",e=>{const b=e.currentTarget;if(!b.dataset.armed){b.dataset.armed="1";b.textContent="Tap again to erase everything";return}
+  state=fresh();save();delete b.dataset.armed;b.textContent="Erase all data and start over";obStart(false)});
+let rz;window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{if(!$("app").hidden)render()},150)});
+
+if(state.onboarded&&state.funds.length){$("app").hidden=false;bindSettings();buildEditors();refreshMainTargets();render()}
+else obStart(false);
 </script>
 
 </body>
