@@ -8,7 +8,7 @@
 <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAhCAYAAADOHBvaAAAAmUlEQVR42mNkwAG4uGX+M1ABfPv6hBGbOBPDAIEBs5gRV/CuK/0AF3f3NCDJ0J3bL8DZQd0CWIN9BAY1UcEr7Ydd99NNZAf7yAtqFpwyyMFLRJAOGR8PwqDGEbzIqRQZkFrIjAY1weAlNUhHg5qkoEYO3tFUTdOgJiZISU35o0FNUvk8mqqp3q4mNVUjg9F2NdagHu0t0hIAAKbJOZHb8rEDAAAAAElFTkSuQmCC">
 <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAACOklEQVR42u3dsW3CUBCA4Thy4Q4EJSPQZIsoTQp2YQp2oUiDskWWSA+dO9JHaXIy1t3z9/VPgPl1cnGyu812f3+CRjy7BAgaBA2CBkEjaBA0CBoEDYJG0CBoSKOv/gPG8eZfnNAwrExoEDQIGgSNoEHQIGgQNAgaQYOgQdAgaPgtzbZddGvufLyGzr2+vTT9x35evkLnDqfY52XZ0jOhccsBggZBg6ARNAgaBA2CBkEjaBA0CBoeopv6xZtltuZ27/Ne6e+PEkHEt/TWoXNTb+mZ0LjlAEGDoEHQCBoEDYIGQYOgETQIGgQND1H+TbLhrbki22+Y0AgaBA2CBkGDoBE0CBoEDYIGQSNoEDQkUH/bbuatueiz36Jaf+OtCQ2CRtAgaBA0CBoEjaBB0CBoEDQIGkFDCf1Sf3h0a872mwkNggZBI2iXAEGDoEHQIGgEDYIGQYOgQdAs0GK37aJbc55tZ0KDoEHQCNolQNAgaBA0CBpBg6BB0CBoEDQL1LsE/zP39ptn8JnQuOUAQYOgQdAgaAQNggZBg6BB0AgaBA0JeJNscp5tZ0IjaBA0CBoEDYJG0CBoEDQIGgSNoEHQkEC32e7vGb7ION5C587H66zfs8qz7aIOp3Xo3DCsTGgQNAgaQYOgQdAgaBA0ggZBg6BB0CBo2pVm2y4quqXH37JszZnQIGgEDYIGQYOgETQIGgQNggZBI2gQNKRS/k2y1bfDMKFB0AgaBA2CBkGDoBE0CBoEDYIGQdOqHzxwPdlWS4HCAAAAAElFTkSuQmCC">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=Pixelify+Sans:wght@400;500;600;700&family=VT323&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=Pixelify+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap">
 <style>
 /* Layout: one column of game "screens". Each section opens on a pixel-art scene (a still from a level), framed like a SNES window;
    the controls below it are that level's HUD. One committed night-world theme: dark only, by choice. */
@@ -23,7 +23,7 @@
   --f-display:"Press Start 2P", "Courier New", monospace;
   --f-label:"Silkscreen", "Courier New", monospace;
   --f-body:"Pixelify Sans", "Trebuchet MS", system-ui, sans-serif;
-  --f-num:"VT323", "Courier New", ui-monospace, monospace;
+  --f-num:"Space Mono", ui-monospace, "Courier New", monospace; --nf:.74;
   --px:4px;
 }
 *{box-sizing:border-box}
@@ -40,7 +40,7 @@ h3{font-family:var(--f-label);font-size:.95rem;font-weight:700;letter-spacing:.0
 p{margin:0}
 b{font-weight:600}
 .eyebrow{font-family:var(--f-label);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.num{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:1.15em;letter-spacing:.02em}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:calc(1.15em * var(--nf));letter-spacing:.02em}
 section{display:flex;flex-direction:column;gap:14px}
 .sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
 .top-bar{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap}
@@ -61,20 +61,20 @@ section{display:flex;flex-direction:column;gap:14px}
 .scene-wrap .loc small{display:block;font-family:var(--f-label);font-size:.66rem;color:var(--gold);letter-spacing:.08em}
 
 .goal-row{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
-.big{font-family:var(--f-num);font-size:3rem;line-height:.9;color:var(--gold);text-shadow:3px 3px 0 var(--frame)}
+.big{font-family:var(--f-num);font-size:calc(3rem * var(--nf));line-height:.9;color:var(--gold);text-shadow:3px 3px 0 var(--frame)}
 .bar{height:20px;background:var(--track);box-shadow:0 0 0 3px var(--frame),inset 0 3px 0 rgba(0,0,0,.4);position:relative}
 .bar>i{display:block;height:100%;background:repeating-linear-gradient(90deg,var(--gold) 0 10px,var(--gold-dk) 10px 12px);box-shadow:inset 0 4px 0 var(--gold-hi),inset 0 -4px 0 var(--gold-dk)}
 .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .stats.four{grid-template-columns:repeat(4,minmax(0,1fr))}
 .stat{display:flex;flex-direction:column;gap:2px;min-width:0;background:var(--well);padding:8px 10px;box-shadow:inset 3px 3px 0 rgba(0,0,0,.35)}
-.stat b{font-family:var(--f-num);font-weight:400;font-size:1.55rem;line-height:1;font-variant-numeric:tabular-nums}
+.stat b{font-family:var(--f-num);font-weight:400;font-size:calc(1.55rem * var(--nf));line-height:1;font-variant-numeric:tabular-nums}
 .pos{color:var(--good)} .neg{color:var(--bad)}
 
 .fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .fields.three{grid-template-columns:repeat(3,minmax(0,1fr))}
 .fields .full{grid-column:1/-1}
 label{display:flex;flex-direction:column;gap:5px;font-family:var(--f-label);font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);min-width:0}
-input,select{font-family:var(--f-num);font-size:1.3rem;line-height:1.1;color:var(--ink);background:var(--well);border:0;border-radius:0;padding:7px 10px;width:100%;min-width:0;
+input,select{font-family:var(--f-num);font-size:max(16px,calc(1.3rem * var(--nf)));line-height:1.1;color:var(--ink);background:var(--well);border:0;border-radius:0;padding:7px 10px;width:100%;min-width:0;
   box-shadow:0 0 0 3px var(--frame),inset 3px 3px 0 rgba(0,0,0,.45);text-transform:none;letter-spacing:0}
 input::placeholder{color:var(--dim)}
 select{font-family:var(--f-body);font-size:1rem}
@@ -116,8 +116,8 @@ button:disabled{opacity:.45;cursor:default;transform:none}
 .line{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:baseline;padding:6px 0;border-bottom:2px dashed var(--line)}
 .line .tk{font-family:var(--f-display);font-size:.72rem;min-width:66px;color:var(--ink)}
 .line .tk::before{content:"▶ ";color:var(--gold)}
-.line .what{color:var(--muted);font-family:var(--f-num);font-size:1.2rem}
-.line .amt{font-family:var(--f-num);font-size:1.35rem;color:var(--gold);text-align:right}
+.line .what{color:var(--muted);font-family:var(--f-num);font-size:calc(1.2rem * var(--nf))}
+.line .amt{font-family:var(--f-num);font-size:calc(1.35rem * var(--nf));color:var(--gold);text-align:right}
 .ticket .foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:.92rem}
 .ticket .foot b{color:var(--gold)}
 
@@ -131,19 +131,19 @@ button:disabled{opacity:.45;cursor:default;transform:none}
 .tk-name{display:flex;flex-direction:column;gap:3px;min-width:0}
 .tk-name b{font-family:var(--f-display);font-size:.85rem;font-weight:400;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .tk-name span.nm{font-size:.84rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.score{font-family:var(--f-num);font-size:2.2rem;line-height:.8;text-align:right;color:var(--gold);text-shadow:2px 2px 0 var(--frame)}
+.score{font-family:var(--f-num);font-size:calc(2.2rem * var(--nf));line-height:.8;text-align:right;color:var(--gold);text-shadow:2px 2px 0 var(--frame)}
 .score small{display:block;font-family:var(--f-label);font-size:.6rem;color:var(--muted);letter-spacing:.08em;text-shadow:none;margin-top:4px}
 .rtrack{position:relative;height:8px;background:var(--well);margin:8px 7px;box-shadow:0 0 0 2px var(--frame)}
 .rtrack::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--good),var(--gold) 50%,var(--warn));opacity:.35}
 .rtrack .dot{position:absolute;top:50%;width:14px;height:14px;background:var(--gold);box-shadow:0 0 0 3px var(--frame);transform:translate(-50%,-50%)}
-.rlabels{display:flex;justify-content:space-between;font-family:var(--f-num);font-size:1.05rem;color:var(--muted)}
+.rlabels{display:flex;justify-content:space-between;font-family:var(--f-num);font-size:calc(1.05rem * var(--nf));color:var(--muted)}
 .rlabels .mid{color:var(--ink)}
 .parts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .part{display:flex;flex-direction:column;gap:4px;min-width:0}
 .part .lab{font-family:var(--f-label);font-size:.62rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
 .part .pb{height:10px;background:var(--well);box-shadow:0 0 0 2px var(--frame)}
 .part .pb i{display:block;height:100%;background:repeating-linear-gradient(90deg,var(--good) 0 6px,transparent 6px 8px)}
-.part .val{font-family:var(--f-num);font-size:1.05rem;color:var(--ink)}
+.part .val{font-family:var(--f-num);font-size:calc(1.05rem * var(--nf));color:var(--ink)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{font-family:var(--f-label);font-size:.64rem;letter-spacing:.04em;text-transform:uppercase;padding:3px 7px;background:var(--well);box-shadow:0 0 0 2px var(--line);color:var(--muted);white-space:nowrap}
 .chip.good{color:var(--good);box-shadow:0 0 0 2px var(--good)}
@@ -155,13 +155,13 @@ button:disabled{opacity:.45;cursor:default;transform:none}
 /* charts */
 .chart{position:relative;width:100%;min-width:0;background:var(--well);padding:8px 4px 2px;box-shadow:inset 3px 3px 0 rgba(0,0,0,.35)}
 .chart svg{display:block;width:100%;height:auto;overflow:visible}
-.chart text{font-family:var(--f-num);font-size:15px;fill:var(--muted)}
+.chart text{font-family:var(--f-num);font-size:calc(15px * var(--nf));fill:var(--muted)}
 .chart .lbl{font-family:var(--f-label);font-size:11px;fill:var(--ink);letter-spacing:.03em}
 .chart .val{fill:var(--ink)}
 .chart > p.hint{padding:10px}
 .tip{position:absolute;pointer-events:none;background:#0e1033;color:var(--ink);font-family:var(--f-body);font-size:.84rem;padding:7px 10px;white-space:nowrap;transform:translate(-50%,calc(-100% - 12px));z-index:3;
   box-shadow:0 0 0 3px var(--ink),0 0 0 6px var(--frame);line-height:1.35}
-.tip b{font-family:var(--f-num);font-size:1.15rem;font-weight:400;color:var(--gold)}
+.tip b{font-family:var(--f-num);font-size:calc(1.15rem * var(--nf));font-weight:400;color:var(--gold)}
 .legend-row{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.84rem;color:var(--muted)}
 .legend-row span{display:inline-flex;align-items:center;gap:7px}
 .legend-row .ln{width:18px;height:4px;display:inline-block}
@@ -176,7 +176,7 @@ button:disabled{opacity:.45;cursor:default;transform:none}
 .tgt-list{display:flex;flex-direction:column;gap:10px}
 .tgt{display:grid;grid-template-columns:auto 1fr 76px 64px;gap:12px;align-items:center;font-size:.95rem}
 .tgt input{padding:5px 8px;text-align:right}
-.tgt .cur{font-family:var(--f-num);font-size:1.15rem;color:var(--muted);text-align:right}
+.tgt .cur{font-family:var(--f-num);font-size:calc(1.15rem * var(--nf));color:var(--muted);text-align:right}
 .tgt-head{font-family:var(--f-label);font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .tgt-sum{display:flex;justify-content:flex-end;gap:8px;font-family:var(--f-label);font-size:.75rem}
 .recs{display:flex;flex-direction:column;gap:12px}
@@ -197,7 +197,7 @@ button:disabled{opacity:.45;cursor:default;transform:none}
 .sg-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .sg-head b{font-family:var(--f-display);font-size:.8rem;font-weight:400}
 .sg p{font-size:.88rem;color:var(--muted)}
-.sg .meta{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--f-num);font-size:1.1rem;color:var(--gold)}
+.sg .meta{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--f-num);font-size:calc(1.1rem * var(--nf));color:var(--gold)}
 
 /* menus */
 details{padding:0}
@@ -245,7 +245,7 @@ summary:hover{background:var(--panel2)}
 /* dividend log */
 .dlog{display:flex;flex-direction:column;gap:10px}
 .dl{display:grid;grid-template-columns:96px 1fr 110px auto;gap:12px;align-items:center;font-size:.9rem}
-.dl b{font-family:var(--f-num);font-weight:400;font-size:1.2rem}
+.dl b{font-family:var(--f-num);font-weight:400;font-size:calc(1.2rem * var(--nf))}
 .dl input{padding:5px 8px;text-align:right}
 .dl .src{font-size:.8rem;color:var(--muted)}
 
@@ -260,7 +260,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .tab:hover{background:var(--panel2);color:var(--ink)}
 .tab[aria-selected="true"]{background:var(--gold);color:var(--coin-ink);box-shadow:inset 0 3px 0 var(--gold-hi),inset 0 -3px 0 var(--gold-dk)}
 .tab:active{transform:translate(2px,2px)}
-.tab .badge{position:absolute;top:-6px;right:-4px;min-width:20px;height:20px;padding:0 5px;background:var(--bad);color:var(--ink);font-family:var(--f-num);font-size:1.05rem;line-height:20px;text-align:center;box-shadow:0 0 0 2px var(--frame)}
+.tab .badge{position:absolute;top:-6px;right:-4px;min-width:20px;height:20px;padding:0 5px;background:var(--bad);color:var(--ink);font-family:var(--f-num);font-size:calc(1.05rem * var(--nf));line-height:20px;text-align:center;box-shadow:0 0 0 2px var(--frame)}
 .tab .badge.good{background:var(--good);color:var(--frame)}
 .tab-off{display:none!important}
 .tab-intro{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:-8px}
@@ -293,6 +293,24 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   .tgt{grid-template-columns:auto 1fr 66px 48px}
 }
 @media (prefers-reduced-motion:no-preference){.bar>i{transition:width .5s steps(10)}}
+.price-box{display:flex;flex-direction:column;gap:10px;background:var(--well);padding:12px;box-shadow:0 0 0 3px var(--frame)}
+.price-fresh{font-family:var(--f-body);font-size:.88rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.price-fresh b{color:var(--ink);font-weight:600}
+.price-fresh .chip{font-size:.6rem}
+details.mini summary{justify-content:flex-start;padding:6px 0;font-size:.72rem;color:var(--gold)}
+details.mini .ed{padding:4px 0 0;gap:8px}
+.ds-sum{display:flex;flex-direction:column;gap:6px}
+.ds-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 10px;background:var(--well)}
+.ds-row .tk{font-family:var(--f-display);font-size:.66rem;display:flex;align-items:center;gap:8px}
+.ds-row .meta{font-size:.8rem;color:var(--muted)}
+.ds-row b{font-family:var(--f-num);font-size:calc(1.35rem * var(--nf));color:var(--gold);font-weight:400}
+.ds-row.total{background:transparent;box-shadow:inset 0 2px 0 var(--line)}
+.ds-item{display:grid;grid-template-columns:1fr 110px auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.ds-item .w{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ds-item .w b{font-family:var(--f-display);font-size:.62rem;font-weight:400}
+.ds-item .w span{font-size:.78rem;color:var(--muted)}
+.ds-item input{padding:5px 8px}
+@media (max-width:420px){.ds-item{grid-template-columns:1fr 96px auto}}
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
 </head>
@@ -410,6 +428,10 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     </div>
     <div class="chart" id="divChart"></div>
     <div class="legend-row" id="divLegend"></div>
+    <div class="sec-head" style="margin-top:6px"><h3>Treasury by fund</h3><span class="hint">Amount invested and yield</span></div>
+    <div class="chart" id="treasChart"></div>
+    <div class="legend-row"><span><i class="sw" style="background:var(--s1)"></i>Invested (bar, by sector)</span><span><i class="ln" style="background:var(--gold)"></i>Yield on cost</span><span><i class="ln" style="background:var(--muted)"></i>Current yield</span></div>
+    <div class="hint" id="treasNote"></div>
     <details>
       <summary>Log or correct monthly dividends <span class="num" id="dvCount"></span></summary>
       <div class="ed">
@@ -433,6 +455,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <label for="cash" class="full">Cash to invest this time ($)<input type="number" id="cash" step="0.01" min="0" inputmode="decimal"></label>
     </div>
     <div class="hint" id="cashNote"></div>
+    <div class="price-fresh" id="buyFresh"></div>
   </section>
 
   <section class="ticket" aria-live="polite" data-tab="buy">
@@ -480,6 +503,26 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <div class="hint" id="trNote"></div>
   </section>
 
+  <section class="panel" aria-label="Distributions by fund" data-tab="returns">
+    <div class="sec-head"><h2>Distributions by fund</h2><span class="hint" id="dsSince"></span></div>
+    <div class="ds-sum" id="dsSum"></div>
+    <details id="dsAddBox">
+      <summary>Add a distribution <span class="num">+</span></summary>
+      <div class="ed">
+        <p class="hint">Leave the amount blank to estimate it from your shares and the fund's recent payout. Once an ex-dividend date passes, the planner adds an estimate for each fund you hold; type the real amount from your broker to confirm it.</p>
+        <div class="fields three">
+          <label for="dsTk">Fund<select id="dsTk"></select></label>
+          <label for="dsDate">Ex-dividend date<input id="dsDate" type="date"></label>
+          <label for="dsAmt">Amount received ($)<input id="dsAmt" type="number" step="0.01" min="0" inputmode="decimal" placeholder="estimate"></label>
+        </div>
+        <div class="err" id="dsErr" hidden></div>
+        <div class="btn-row"><button type="button" class="sm" id="dsAdd">Add distribution</button></div>
+      </div>
+    </details>
+    <div class="sec-head"><h3>Log</h3><div class="seg" role="group" aria-label="Filter distributions" id="dsFilter"></div></div>
+    <div class="dlog" id="dsList"></div>
+  </section>
+
   <section class="panel" aria-label="Fund ranking" data-tab="buy">
     <div class="sec-head"><h2>Ranking for this buy</h2><span class="hint">Score out of 100, before this order</span></div>
     <div class="funds" id="funds"></div>
@@ -492,7 +535,20 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
   <section class="panel" aria-label="Fund data" data-tab="funds">
     <h2>Fund data</h2>
-    <p class="hint">Update price, 52-week range and recent distributions before each buy. Built-in data is from Oct 22–23, 2026 closes.</p>
+    <div class="price-box">
+      <div class="price-fresh" id="fundFresh"></div>
+      <div class="btn-row"><button type="button" class="primary sm" id="priceCheck">Check for new prices</button></div>
+      <div class="status" id="priceStatus" hidden></div>
+      <details class="mini">
+        <summary>When do prices update?</summary>
+        <div class="ed">
+          <p class="hint"><b>ETFs and stocks</b> (JEPQ, QQQI, MLPI and the like) trade all day while the market is open, 9:30 a.m. to 4 p.m. Eastern on weekdays. The closing price is set at 4 p.m.</p>
+          <p class="hint"><b>Mutual funds</b> (like FSPTX) have one price a day, the net asset value, calculated after the close and usually posted by about 6 p.m. Eastern.</p>
+          <p class="hint"><b>Distributions</b> are announced by each fund, usually a few days before the ex-dividend date. Checking pulls the last year of payouts and their ex-dates for monthly payers.</p>
+          <p class="hint">The planner doesn't update on its own. Tap <b>Check for new prices</b> before a buy; it fetches the latest price, 52-week range and payouts for every fund. Needs sign-in. You can always type values in by hand below.</p>
+        </div>
+      </details>
+    </div>
     <div class="search">
       <label for="mSearch">Add a fund to consider<input id="mSearch" type="search" placeholder="Ticker or name" autocomplete="off" autocapitalize="characters"></label>
       <div class="results" id="mResults" hidden></div>
@@ -523,7 +579,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <p><b>Total return</b> blends where the price sits in its 52-week range (lower is cheaper), whether recent distributions are rising or shrinking, and a sustainability check that discounts yields far above 12%, since those usually come partly out of NAV.</p>
     <p><b>Monthly dividend</b> rewards a higher yield on the price you pay, with a small bonus when the next ex-dividend date lands 1 to 10 days after the buy.</p>
     <p><b>Balance</b> favors sectors below their target and, within a sector, funds below their share of it. The order is built one share at a time, re-scoring after each share, so cash spreads out.</p>
-    <p>Total return counts distributions you entered plus those the planner estimates each time you record a purchase. This is a rules-based helper, not financial advice; ex-dividend dates are estimates, and selling can create taxes.</p>
+    <p>Total return counts the per-fund distribution log (the planner adds an estimate when each ex-dividend date passes; confirm it with the real amount) plus anything entered as received before tracking began. This is a rules-based helper, not financial advice; ex-dividend dates are estimates, and selling can create taxes.</p>
   </section>
 </div>
 <div class="toast" id="toast" hidden></div>
@@ -577,7 +633,7 @@ const PRESETS={tr:[60,25,15],bal:[45,35,20],inc:[30,55,15]};
 
 /* ---------- state ---------- */
 const KEY="divplanner.v1";
-const fresh=()=>({v:2,onboarded:false,settings:{wTR:60,wDiv:25,wBal:15,goal:4000,contrib:500,drift:0,pri:"tr"},catTargets:{...SUGGESTED_MIX},funds:[],history:[],divLog:[]});
+const fresh=()=>({v:2,onboarded:false,settings:{wTR:60,wDiv:25,wBal:15,goal:4000,contrib:500,drift:0,pri:"tr"},catTargets:{...SUGGESTED_MIX},funds:[],history:[],divLog:[],dists:[],distSkip:[],distsFrom:null});
 function fromCatalog(tk){const c=CATALOG.find(x=>x.tk===tk);if(!c)return null;const f=structuredClone(c);delete f.why;
   return Object.assign({shares:0,avgCost:null,collected:0,lag:0,note:""},f)}
 function load(){
@@ -596,6 +652,7 @@ function load(){
   CATS.forEach(c=>{if(s.catTargets[c.id]==null)s.catTargets[c.id]=0});
   if(!Array.isArray(s.history))s.history=[];
   if(!Array.isArray(s.divLog))s.divLog=[];
+  if(!Array.isArray(s.dists))s.dists=[];if(!Array.isArray(s.distSkip))s.distSkip=[];
   return s}
 function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
 function save(){state.updatedAt=Date.now();saveLocal();try{schedulePush()}catch(e){}}
@@ -818,6 +875,9 @@ function render(){
   renderRebalance(buyDate,h0);
   renderTR();
   renderDivs(buyDate);
+  try{drawTreasury()}catch(e){}
+  try{renderDists()}catch(e){}
+  try{renderPrices()}catch(e){}
   renderSuggest();
   try{updateScenes()}catch(e){}
   try{updateBadges(lines)}catch(e){}
@@ -863,7 +923,7 @@ function renderRebalance(buyDate,h0){
 }
 
 function trRows(){return state.funds.filter(f=>f.avgCost>0&&f.shares>0).map(f=>{const cost=f.shares*f.avgCost,pg=f.shares*f.price-cost;
-  return {f,cost,pg,dist:f.collected||0,p:pg/cost,d:(f.collected||0)/cost}}).sort((a,b)=>(b.p+b.d)-(a.p+a.d))}
+  const dist=(+f.collected||0)+distTotal(f.tk);return {f,cost,pg,dist,p:pg/cost,d:dist/cost}}).sort((a,b)=>(b.p+b.d)-(a.p+a.d))}
 function renderTR(){
   const rows=trRows();const cost=rows.reduce((a,r)=>a+r.cost,0),pg=rows.reduce((a,r)=>a+r.pg,0),dist=rows.reduce((a,r)=>a+r.dist,0);
   const missing=state.funds.filter(f=>f.shares>0&&!(f.avgCost>0)).map(f=>f.tk);
@@ -872,7 +932,7 @@ function renderTR(){
   cls($("trPrice"),pg,cost?sgnUsd(pg):"–");$("trDist").textContent=cost?usd(dist):"–";
   cls($("trTotal"),pg+dist,cost?`${sgnPct((pg+dist)/cost)}`:"–");
   drawTR(rows);
-  $("trNote").textContent=(missing.length?`Missing average cost for ${missing.join(", ")}. `:"")+(rows.length?"Distributions are what you entered plus the planner's estimate for each month you record a purchase.":"");
+  $("trNote").textContent=(missing.length?`Missing average cost for ${missing.join(", ")}. `:"")+(rows.length?"Distributions come from the per-fund log below (estimates until you confirm them) plus any amount entered as received before tracking.":"");
 }
 
 function renderSuggest(){
@@ -960,6 +1020,125 @@ $("dvAdd").addEventListener("click",()=>{const m=$("dvMonth").value,v=parseFloat
   err.hidden=true;let e=state.divLog.find(x=>x.m===m);if(!e){e={m,est:{},actual:null};state.divLog.push(e);state.divLog.sort((a,b)=>a.m<b.m?-1:1)}
   e.actual=v;$("dvAmt").value="";save();render();toast(`${mLabel(m)} saved`)});
 
+/* ---------- prices: freshness and live check ----------
+   Built-in prices are a snapshot. "Check for new prices" calls the fund-quotes Supabase function
+   (signed-in only), which reads the latest price, 52-week range and payouts with ex-dates. */
+const BUILTIN_ASOF="2026-10-23T20:00:00Z";
+function etParts(d){const p={};new Intl.DateTimeFormat("en-US",{timeZone:"America/New_York",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",hour12:false,weekday:"short"}).formatToParts(d).forEach(x=>p[x.type]=x.value);return p}
+const etDay=d=>{const p=etParts(d);return `${p.year}-${p.month}-${p.day}`};
+function lastCloseDay(now){now=now||new Date();const p=etParts(now);let d=new Date(+p.year,+p.month-1,+p.day);const open=+p.hour>=16||+p.hour===24;
+  if(!open||d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()-1);while(d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()-1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+function oldestPrice(){const ts=state.funds.filter(f=>f.price>0).map(f=>Date.parse(f.asOf||state.pricesAsOf||BUILTIN_ASOF)).filter(v=>v>0);return ts.length?new Date(Math.min(...ts)):null}
+function freshHtml(withBtn){const o=oldestPrice();if(!o)return "";const day=etDay(o),last=lastCloseDay(),stale=day<last;
+  const when=new Date(day+"T12:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+  let days=0;for(let d=parseDate(day);isoDay(d)<last;){d.setDate(d.getDate()+1);if(d.getDay()%6)days++}
+  return `<span>Prices as of <b>${when}</b> close</span>${stale?`<span class="chip warn">${days>1?days+" trading days":"1 trading day"} behind</span>`:`<span class="chip good">up to date</span>`}${withBtn&&stale?`<button type="button" class="ghost sm" data-pricecheck="1">Check for new prices</button>`:""}`}
+function renderPrices(){$("buyFresh").innerHTML=freshHtml(true);$("fundFresh").innerHTML=freshHtml(false)+(state.pricesCheckedAt?`<span>Last checked ${new Date(state.pricesCheckedAt).toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}</span>`:"")}
+function priceStatus(html,busy){const s=$("priceStatus");s.hidden=!html;s.innerHTML=(busy?`<span class="spin" aria-hidden="true"></span>`:"")+`<span>${html||""}</span>`}
+let priceBusy=false;
+async function checkPrices(){if(priceBusy)return;
+  if(curTab!=="funds")setTab("funds");
+  if(!sb){priceStatus("Price checks need the sync service, which didn't load. Check your connection and reload.");return}
+  if(!user){priceStatus(`Sign in to check for new prices. <button type="button" class="sm" data-acct="1">Sign in</button>`);return}
+  const syms=state.funds.map(f=>f.tk);if(!syms.length)return;
+  priceBusy=true;$("priceCheck").disabled=true;priceStatus("Checking prices for "+syms.length+" funds…",true);
+  try{const{data,error}=await sb.functions.invoke("fund-quotes",{body:{symbols:syms}});
+    if(error){const st=error.context&&error.context.status;
+      throw new Error(error.name==="FunctionsFetchError"||st===404?"missing":st===401?"signin":"failed")}
+    const q=(data&&data.quotes)||{};const changed=[],failed=[];
+    state.funds.forEach(f=>{const r=q[f.tk];if(!r||r.error||!(r.price>0)){failed.push(f.tk);return}
+      const before=f.price;f.price=r.price;if(r.high>0)f.high=r.high;if(r.low>0)f.low=r.low;f.asOf=r.asOf||new Date().toISOString();
+      if(Array.isArray(r.divs)&&r.divs.length){f.exHist=r.divs.slice(0,12);
+        if(f.freq>=12&&r.divs.length>=3)f.divs=r.divs.slice(0,6).map(d=>d.amount)}
+      if(Math.abs(before-f.price)>=.005)changed.push(`${f.tk} ${usd(before,2)} → ${usd(f.price,2)}`)});
+    state.pricesCheckedAt=Date.now();autoEstimateDists();save();buildEditors();render();
+    priceStatus((changed.length?`Updated ${changed.length} price${changed.length>1?"s":""}: ${esc(changed.slice(0,4).join(" · "))}${changed.length>4?"…":""}.`:"Prices are already current.")+(failed.length?` Couldn't find ${esc(failed.join(", "))}; enter those by hand.`:""));
+    toast(changed.length?"Prices updated":"Prices already current")}
+  catch(e){const m=e&&e.message;priceStatus(m==="missing"?"Price checks aren't switched on yet. Deploy the fund-quotes function in Supabase (steps are in the README).":m==="signin"?"Your sign-in expired. Sign in again, then check.":"Couldn't reach the price service. Try again in a minute.")}
+  finally{priceBusy=false;$("priceCheck").disabled=false}}
+$("priceCheck").addEventListener("click",checkPrices);
+document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("[data-pricecheck]"))checkPrices()});
+
+/* ---------- distributions by fund ----------
+   One entry per fund per ex-dividend date. When an ex-date passes for a fund you hold, an estimate
+   (shares × recent per-share payout) is logged automatically; typing the real amount confirms it. */
+const isoDay=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const perShareOf=f=>f.divs.length?(f.freq>=12?f.divs[0]:annualDiv(f)/f.freq):0;
+const distKey=(tk,ex)=>tk+"|"+ex.slice(0,7);
+function distTotal(tk){return state.dists.filter(d=>d.tk===tk).reduce((a,d)=>a+(+d.amt||0),0)}
+function autoEstimateDists(){if(!state.distsFrom)return 0;const today=isoDay(new Date());let n=0;
+  const have=new Set(state.dists.map(d=>distKey(d.tk,d.ex))),skip=new Set(state.distSkip||[]);
+  state.funds.forEach(f=>{if(!(f.shares>0)||!usable(f))return;const cands=new Map();
+    (f.exHist||[]).forEach(x=>{if(x.ex>=state.distsFrom&&x.ex<=today)cands.set(x.ex.slice(0,7),{ex:x.ex,per:x.amount})});
+    const s=parseDate(state.distsFrom),e=new Date();for(let k=0;k<14;k++){const b=new Date(s.getFullYear(),s.getMonth()+k,1);if(b>e)break;
+      const d=exInMonth(f,b.getFullYear(),b.getMonth());if(!d)continue;const ex=isoDay(d);if(ex<state.distsFrom||ex>today)continue;
+      if(!cands.has(ex.slice(0,7)))cands.set(ex.slice(0,7),{ex,per:perShareOf(f)})}
+    cands.forEach(c=>{const key=distKey(f.tk,c.ex);if(have.has(key)||skip.has(key)||!(c.per>0))return;
+      state.dists.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),tk:f.tk,ex:c.ex,per:+c.per,shares:f.shares,amt:+(f.shares*c.per).toFixed(2),est:true});have.add(key);n++})});
+  if(n)state.dists.sort((a,b)=>a.ex<b.ex?1:-1);return n}
+let dsFilter="all";
+function renderDists(){
+  const since=state.distsFrom?parseDate(state.distsFrom).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}):"";
+  $("dsSince").textContent=since?`Estimates since ${since}`:"";
+  const tks=[...new Set([...state.funds.map(f=>f.tk),...state.dists.map(d=>d.tk)])];
+  const rows=tks.map(tk=>{const f=state.funds.find(x=>x.tk===tk);const list=state.dists.filter(d=>d.tk===tk);const est=list.filter(d=>d.est).reduce((a,d)=>a+d.amt,0);
+    const before=f?(+f.collected||0):0;return {tk,f,n:list.length,tot:list.reduce((a,d)=>a+d.amt,0),est,before}}).filter(r=>r.n||r.before||(r.f&&r.f.shares>0));
+  const grand=rows.reduce((a,r)=>a+r.tot+r.before,0);
+  $("dsSum").innerHTML=rows.length?rows.map(r=>`<div class="ds-row"><span class="tk">${r.f?sw(r.f.cat):""}${esc(r.tk)}</span>
+    <span class="meta">${r.n?`${r.n} payment${r.n>1?"s":""}`:"none logged"}${r.est>0?` · ${usd(r.est,2)} estimated`:""}${r.before?` · ${usd(r.before,2)} before tracking`:""}</span><b>${usd(r.tot+r.before,2)}</b></div>`).join("")
+    +`<div class="ds-row total"><span class="tk">TOTAL</span><span class="meta">All funds</span><b>${usd(grand,2)}</b></div>`:`<p class="hint">Add holdings to track their distributions.</p>`;
+  const opts=state.funds.map(f=>`<option value="${esc(f.tk)}">${esc(f.tk)}</option>`).join("");const sel=$("dsTk");const keep=sel.value;sel.innerHTML=opts;if(keep&&state.funds.some(f=>f.tk===keep))sel.value=keep;
+  if(!$("dsDate").value)$("dsDate").value=isoDay(new Date());
+  $("dsFilter").innerHTML=[["all","All"],["est","Estimated"],["conf","Confirmed"]].map(([k,l])=>`<button type="button" data-dsf="${k}" aria-pressed="${dsFilter===k}">${l}</button>`).join("");
+  $("dsFilter").querySelectorAll("[data-dsf]").forEach(b=>b.onclick=()=>{dsFilter=b.dataset.dsf;renderDists()});
+  const list=state.dists.filter(d=>dsFilter==="all"||(dsFilter==="est"?d.est:!d.est)).slice(0,60);
+  $("dsList").innerHTML=list.length?list.map(d=>`<div class="ds-item"><div class="w"><b>${esc(d.tk)} · ${parseDate(d.ex).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</b>
+      <span>${d.est?`Estimated · ${(+d.shares).toLocaleString()} sh × ${usd(d.per,4)}`:"Confirmed"}</span></div>
+      <input type="number" step="0.01" min="0" inputmode="decimal" data-dsid="${d.id}" value="${(+d.amt).toFixed(2)}" aria-label="Amount for ${esc(d.tk)} on ${d.ex}">
+      <button type="button" class="ghost sm" data-dsrm="${d.id}" aria-label="Remove">✕</button></div>`).join("")
+    :`<p class="hint">${state.dists.length?"Nothing here for this filter.":"No distributions logged yet. Estimates appear here once a fund you hold passes its ex-dividend date."}</p>`;
+  $("dsList").querySelectorAll("[data-dsid]").forEach(el=>el.addEventListener("change",()=>{const d=state.dists.find(x=>x.id===el.dataset.dsid);const v=parseFloat(el.value);
+    if(!d||isNaN(v)||v<0){el.value=d?(+d.amt).toFixed(2):"";return}d.amt=+v.toFixed(2);d.est=false;save();render();toast(`${d.tk} distribution confirmed`)}));
+  $("dsList").querySelectorAll("[data-dsrm]").forEach(b=>b.addEventListener("click",()=>{if(!b.dataset.armed){b.dataset.armed="1";b.textContent="Remove?";return}
+    const d=state.dists.find(x=>x.id===b.dataset.dsrm);if(!d)return;state.dists=state.dists.filter(x=>x!==d);
+    if(d.est){state.distSkip=state.distSkip||[];state.distSkip.push(distKey(d.tk,d.ex))}save();render();toast("Distribution removed")}));
+}
+$("dsAdd").addEventListener("click",()=>{const tk=$("dsTk").value,ex=$("dsDate").value,raw=$("dsAmt").value,err=$("dsErr");const f=state.funds.find(x=>x.tk===tk);
+  if(!f){err.textContent="Pick a fund.";err.hidden=false;return}
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(ex)){err.textContent="Pick the ex-dividend date.";err.hidden=false;return}
+  let amt=parseFloat(raw);const est=raw==="";const per=perShareOf(f);
+  if(est){if(!(per>0&&f.shares>0)){err.textContent=`Enter the amount; ${tk} has no shares or payout data to estimate from.`;err.hidden=false;return}amt=f.shares*per}
+  else if(!(amt>=0)){err.textContent="Enter the amount you received.";err.hidden=false;return}
+  err.hidden=true;const key=distKey(tk,ex);const dup=state.dists.find(d=>distKey(d.tk,d.ex)===key);
+  if(dup){dup.ex=ex;dup.amt=+amt.toFixed(2);dup.est=est;dup.per=per;dup.shares=f.shares}
+  else state.dists.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),tk,ex,per,shares:f.shares,amt:+amt.toFixed(2),est});
+  state.dists.sort((a,b)=>a.ex<b.ex?1:-1);$("dsAmt").value="";save();render();toast(dup?`${tk} entry for that month updated`:`${tk} distribution added`)});
+
+/* ---------- treasury: invested and yield per fund ---------- */
+function drawTreasury(){
+  const box=$("treasChart");const rows=state.funds.filter(f=>f.shares>0).map(f=>{const cost=f.avgCost>0?f.shares*f.avgCost:f.shares*f.price;const ann=f.shares*annualDiv(f);
+    return {f,inv:cost,yoc:cost>0?ann/cost:0,cur:yieldOf(f),costKnown:f.avgCost>0}}).sort((a,b)=>b.inv-a.inv);
+  if(!rows.length){box.innerHTML=`<p class="hint">Add shares to see the treasury.</p>`;$("treasNote").textContent="";return}
+  const W=Math.max(300,box.clientWidth||600),narrow=W<480,L=narrow?54:66,R=narrow?92:120,rowH=34,T=6,H=T+rows.length*rowH+20;
+  const maxInv=Math.max(...rows.map(r=>r.inv))*1.02,maxY=Math.max(.05,...rows.map(r=>Math.max(r.yoc,r.cur)))*1.08;
+  const bw=W-L-R,xI=v=>L+v/maxInv*bw,xY=v=>L+v/maxY*bw;
+  let g=`<svg shape-rendering="crispEdges" viewBox="0 0 ${W} ${H}" role="img" aria-label="Amount invested and yield by fund">`;
+  rows.forEach((r,i)=>{const y=T+i*rowH,fill=cvar(r.f.cat);
+    g+=`<text x="${L-8}" y="${y+15}" text-anchor="end" class="lbl" style="font-family:var(--f-display);font-size:9px">${esc(r.f.tk)}</text>`;
+    g+=`<rect x="${L}" y="${y+2}" width="${bw}" height="16" fill="var(--track)"/>`;
+    g+=`<rect x="${L}" y="${y+2}" width="${Math.max(2,xI(r.inv)-L)}" height="16" fill="${fill}"/><rect x="${L}" y="${y+2}" width="${Math.max(2,xI(r.inv)-L)}" height="2" fill="#fff" opacity=".3"/>`;
+    g+=`<rect x="${L}" y="${y+21}" width="${Math.max(1,xY(r.yoc)-L)}" height="3" fill="var(--gold)"/>`;
+    g+=`<rect x="${L}" y="${y+26}" width="${Math.max(1,xY(r.cur)-L)}" height="2" fill="var(--muted)"/>`;
+    g+=`<text x="${W-R+8}" y="${y+14}" style="fill:var(--ink)">${usd(r.inv)}${r.costKnown?"":"*"}</text>`;
+    g+=`<text x="${W-R+8}" y="${y+29}" style="fill:var(--gold);font-size:12px">${pct(r.yoc)}${narrow?"":" yield"}</text>`;
+    g+=`<rect x="0" y="${y}" width="${W}" height="${rowH}" fill="transparent" data-tip="${esc(r.f.tk)} · <b>${usd(r.inv)}</b> ${r.costKnown?"invested":"market value"}<br>${pct(r.yoc)} yield on cost · ${pct(r.cur)} at today's price<br>${usd(r.f.shares*annualDiv(r.f)/12,2)}/mo · ${usd(distTotal(r.f.tk)+(+r.f.collected||0),2)} received so far"/>`});
+  const totInv=rows.reduce((a,r)=>a+r.inv,0),totAnn=rows.reduce((a,r)=>a+r.f.shares*annualDiv(r.f),0);
+  g+=`<text x="${L}" y="${H-4}" style="font-size:12px">Total ${usd(totInv)} · ${pct(totInv?totAnn/totInv:0)} yield on cost</text></svg>`;
+  box.innerHTML=g;attachTips(box);
+  $("treasNote").textContent=rows.some(r=>!r.costKnown)?"* No average cost entered, so market value is shown instead.":"";
+}
+
 /* ---------- fund editors ---------- */
 function fundFields(f,i,pfx){const id=k=>`${pfx}-${k}-${i}`;
   return `<div class="fields three">
@@ -970,7 +1149,7 @@ function fundFields(f,i,pfx){const id=k=>`${pfx}-${k}-${i}`;
     <label for="${id("high")}">52-week high<input id="${id("high")}" data-i="${i}" data-k="high" type="number" step="0.01" value="${f.high||""}"></label>
     <label for="${id("freq")}">Payments / yr<select id="${id("freq")}" data-i="${i}" data-k="freq">${[12,4,2,1].map(n=>`<option value="${n}"${f.freq===n?" selected":""}>${n}</option>`).join("")}</select></label>
     <label for="${id("cat")}">Sector<select id="${id("cat")}" data-i="${i}" data-k="cat">${CATS.map(c=>`<option value="${c.id}"${c.id===f.cat?" selected":""}>${c.label}</option>`).join("")}</select></label>
-    <label for="${id("coll")}">Distributions received ($)<input id="${id("coll")}" data-i="${i}" data-k="collected" type="number" step="0.01" min="0" value="${f.collected?(+f.collected).toFixed(2):""}" placeholder="optional"></label>
+    <label for="${id("coll")}">Distributions before tracking ($)<input id="${id("coll")}" data-i="${i}" data-k="collected" type="number" step="0.01" min="0" value="${f.collected?(+f.collected).toFixed(2):""}" placeholder="optional"></label>
     <label for="${id("divs")}" class="full">Recent distributions per share, newest first<input id="${id("divs")}" data-i="${i}" data-k="divs" type="text" value="${f.divs.join(", ")}" placeholder="0.52, 0.53, 0.51"></label>
   </div>`}
 function applyField(f,k,el){
@@ -1164,11 +1343,17 @@ const SCENES={
  road(c,w,h,t){bands(c,w,0,h-12,["#12132b","#1a1b44","#2a2160","#43286e","#6a3474"]);stars(c,w,h*.55,11,t,Math.round(w*.35));moon(c,Math.round(w*.52),9,5);
   ridge(c,w,h,h-13,11,.07,5,"#2b2d66");ridge(c,w,h,h-10,4,.16,8,"#1d3b55");ground(c,w,h,9);
   const cx=w-26;castle(c,cx,h-9,t,1);
-  const p=Math.max(0,Math.min(1,SD.progress)),hx=Math.round(4+p*(cx-18));
-  [.25,.5,.75].forEach(q=>{const mx=Math.round(4+q*(cx-18))+4;R(c,"#8a6f5a",mx,h-15,1,6);R(c,p>=q?PAL.g:"#c9cbe8",mx-2,h-17,5,3);R(c,PAL.o,mx-2,h-14,5,1)});
+  const p=Math.max(0,Math.min(1,SD.progress)),goalX=4+p*(cx-18);
+  // march-in: the first time the road is drawn, the knight walks in from off-screen to today's progress point
+  if(SD.marchT0==null)SD.marchT0=t;
+  const mk=t===0?1:Math.min(1,(t-SD.marchT0)/2.6),me=1-Math.pow(1-mk,2.2);SD.marching=mk<1;
+  const hx=Math.round(-14+(goalX+14)*me),bob=SD.marching&&Math.floor(t*8)%2?1:0;
+  [.25,.5,.75].forEach(q=>{const mx=Math.round(4+q*(cx-18))+4;const lit=p>=q&&hx>=mx-6;R(c,"#8a6f5a",mx,h-15,1,6);R(c,lit?PAL.g:"#c9cbe8",mx-2,h-17,5,3);R(c,PAL.o,mx-2,h-14,5,1)});
   for(let i=1;i<=3;i++){const x=hx+8+i*12;if(x<cx-6)coin(c,x,h-19-Math.round(Math.abs(Math.sin(t*3+i))*2),t,i)}
-  spr(c,p<1&&Math.floor(t*2.5)%2?SPR.hero2:SPR.hero,hx,h-9-13);
-  if(p>=1)for(let i=0;i<6;i++){const a=t*2+i;R(c,i%2?PAL.G:PAL.W,hx+5+Math.round(Math.cos(a)*9),h-28+Math.round(Math.sin(a)*5))}},
+  if(SD.marching)for(let i=0;i<3;i++){const a=(t*3+i*.33)%1;R(c,"rgba(200,180,150,"+(.6-a*.6).toFixed(2)+")",hx-2-Math.round(a*7),h-11-Math.round(a*2)+(i%2),2,1)}
+  const walk=SD.marching?Math.floor(t*8)%2:(p<1&&Math.floor(t*2.5)%2);
+  spr(c,walk?SPR.hero2:SPR.hero,hx,h-9-13-bob);
+  if(p>=1&&!SD.marching)for(let i=0;i<6;i++){const a=t*2+i;R(c,i%2?PAL.G:PAL.W,hx+5+Math.round(Math.cos(a)*9),h-28+Math.round(Math.sin(a)*5))}},
  vault(c,w,h,t){R(c,"#221f45",0,0,w,h);for(let y=0;y<h-6;y+=5){const off=(y/5)%2?4:0;for(let x=-off;x<w;x+=9){R(c,(Math.abs(Math.sin(x*12.9+y*3.1))>.85)?"#332f66":"#3a3570",x+1,y+1,8,4);R(c,"#4a4590",x+1,y+1,8,1)}}
   R(c,"#2a2550",0,h-6,w,6);R(c,"#4a4590",0,h-6,w,1);
   torch(c,10,24,t);torch(c,w-12,24,t+.4);
@@ -1258,7 +1443,7 @@ function sizeScene(s){const cw=s.wrap.clientWidth||s.wrap.parentElement.clientWi
 function drawScene(s,t){if(!s.wrap.isConnected||s.wrap.offsetParent===null)return;sizeScene(s);const c=s.cv.getContext("2d");c.imageSmoothingEnabled=false;c.clearRect(0,0,s.lw,s.lh);
   try{SCENES[s.name](c,s.lw,s.lh,t)}catch(e){}}
 function drawAllScenes(force){const t=reduceMotion()?0:performance.now()/1000;scenes.forEach(s=>{if(force||sceneVisible.has(s))drawScene(s,t)})}
-function sceneLoop(){if(!reduceMotion()&&document.visibilityState==="visible")drawAllScenes(false);sceneTimer=setTimeout(()=>requestAnimationFrame(sceneLoop),120)}
+function sceneLoop(){if(!reduceMotion()&&document.visibilityState==="visible")drawAllScenes(false);sceneTimer=setTimeout(()=>requestAnimationFrame(sceneLoop),SD.marching?45:120)}
 function setLoc(name,text){const s=scenes.find(x=>x.name===name);if(s)s.wrap.querySelector(".loc-t").textContent=text}
 function iconCanvas(el,map,size){if(!el)return;const cv=document.createElement("canvas");cv.width=map[0].length;cv.height=map.length;cv.setAttribute("aria-hidden","true");
   if(size)cv.style.width=cv.style.height=size+"px";const c=cv.getContext("2d");spr(c,map,0,0);el.prepend(cv);return cv}
@@ -1284,6 +1469,7 @@ function mountAll(){
   mountScene(sec("Fund ranking"),"arena",44,"THE ARENA","Today's top three take the podium");
   mountScene(sec("Diversifying funds"),"tavern",40,"TAVERN","Recruits for your party");
   mountScene(sec("Fund data"),"inv",34,"INVENTORY","One item per fund");
+  mountScene(sec("Distributions by fund"),"vault",34,"COIN LEDGER","Every payout, fund by fund");
   mountScene($("acctPanel"),"save",30,"SAVE POINT","Sync across devices");
   mountScene($("obHero"),"title",60,"NEW GAME","Income quest");
   const sp=document.querySelector(".ticket .speaker");if(sp&&!sp.querySelector("canvas"))iconCanvas(sp,SPR.face,48);
@@ -1448,18 +1634,21 @@ $("buyDate").addEventListener("change",render);
 $("cash").addEventListener("input",()=>{cashTouched=true;render()});
 $("monthly").addEventListener("change",()=>{const v=parseFloat($("monthly").value);if(v>=0){state.settings.contrib=v;$("contrib").value=v;save();render();toast(`Monthly investment set to ${usd(v)}`)}else $("monthly").value=state.settings.contrib});
 $("record").addEventListener("click",()=>{if(!plan)return;const buyDate=parseDate($("buyDate").value);
-  lastPurchase={funds:state.funds.map(f=>({shares:f.shares,avgCost:f.avgCost,collected:f.collected})),divLog:structuredClone(state.divLog)};
+  lastPurchase={funds:state.funds.map(f=>({shares:f.shares,avgCost:f.avgCost,collected:f.collected})),divLog:structuredClone(state.divLog),dists:structuredClone(state.dists)};
+  autoEstimateDists();
   const pay=monthPayouts(buyDate),mk=monthKey(buyDate),fresh=!state.divLog.some(e=>e.m===mk);
   if(fresh){const est={};state.funds.forEach((f,i)=>{if(pay[i]>0)est[f.tk]=+pay[i].toFixed(2)});state.divLog.push({m:mk,est,actual:null});state.divLog.sort((a,b)=>a.m<b.m?-1:1)}
-  state.funds.forEach((f,i)=>{const n=plan.buys[i];if(fresh)f.collected=(+f.collected||0)+pay[i];
+  state.funds.forEach((f,i)=>{const n=plan.buys[i];
     if(n>0){if(f.avgCost>0)f.avgCost=+((f.avgCost*f.shares+n*f.price)/(f.shares+n)).toFixed(4);else if(f.shares===0)f.avgCost=f.price;f.shares+=n}});
   snapshot();save();cashTouched=false;$("undo").hidden=false;buildEditors();render();toast("Purchase recorded")});
-$("undo").addEventListener("click",()=>{if(!lastPurchase)return;lastPurchase.funds.forEach((p,i)=>{if(state.funds[i])Object.assign(state.funds[i],p)});state.divLog=lastPurchase.divLog;lastPurchase=null;snapshot();save();$("undo").hidden=true;buildEditors();render();toast("Purchase undone")});
+$("undo").addEventListener("click",()=>{if(!lastPurchase)return;lastPurchase.funds.forEach((p,i)=>{if(state.funds[i])Object.assign(state.funds[i],p)});state.divLog=lastPurchase.divLog;if(lastPurchase.dists)state.dists=lastPurchase.dists;lastPurchase=null;snapshot();save();$("undo").hidden=true;buildEditors();render();toast("Purchase undone")});
 $("reset").addEventListener("click",e=>{const b=e.currentTarget;if(!b.dataset.armed){b.dataset.armed="1";b.textContent="Tap again to erase everything";return}
   state=fresh();save();delete b.dataset.armed;b.textContent="Erase all data and start over";obStart(false);toast(user?"Erased here and in your account":"Erased")});
 let rz;window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{if(!$("app").hidden)render()},150)});
 
-function showApp(){$("ob").hidden=true;$("app").hidden=false;cashTouched=false;bindSettings();buildEditors();refreshMainTargets();render()}
+function showApp(){$("ob").hidden=true;$("app").hidden=false;cashTouched=false;
+  if(!state.distsFrom){state.distsFrom=isoDay(new Date());saveLocal()}if(autoEstimateDists())save();
+  bindSettings();buildEditors();refreshMainTargets();render()}
 function showCurrent(){if(state.onboarded&&state.funds.length)showApp();else obStart(false)}
 try{mountAll()}catch(e){}
 try{initTabs()}catch(e){}
