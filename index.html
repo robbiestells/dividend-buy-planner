@@ -311,6 +311,12 @@ details.mini .ed{padding:4px 0 0;gap:8px}
 .ds-item .w span{font-size:.78rem;color:var(--muted)}
 .ds-item input{padding:5px 8px}
 @media (max-width:420px){.ds-item{grid-template-columns:1fr 96px auto}}
+.disc-body{display:flex;flex-direction:column;gap:10px;font-size:.92rem;line-height:1.5}
+.disc-body b{color:var(--gold)}
+.disc-ok{flex-direction:row;align-items:flex-start;gap:10px;text-transform:none;letter-spacing:0;font-family:var(--f-body);font-size:.95rem;color:var(--ink);cursor:pointer}
+.disc-ok input{width:22px;height:22px;flex:none;margin-top:2px;accent-color:var(--gold);padding:0}
+.disc-foot{text-align:center;font-family:var(--f-label);font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);padding:8px 16px 96px;margin:0}
+.linkish{background:none;box-shadow:none;padding:0;color:var(--gold);text-decoration:underline;font:inherit;letter-spacing:inherit;text-transform:inherit}
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
 </head>
@@ -322,6 +328,22 @@ details.mini .ed{padding:4px 0 0;gap:8px}
   <section class="panel" aria-label="Account" id="acctPanel">
     <div class="sec-head"><h2>Account</h2><button type="button" class="ghost sm" id="acctClose">Close</button></div>
     <div id="acctBody"></div>
+  </section>
+</div>
+
+<!-- DISCLAIMER: shown before anything else until acknowledged -->
+<div class="wrap" id="disc" hidden>
+  <section class="panel disc" aria-labelledby="discH">
+    <header style="display:flex;flex-direction:column;gap:10px"><span class="eyebrow">Before you play</span><h1 id="discH">Just for fun · not financial advice</h1></header>
+    <div class="disc-body">
+      <p><b>This is a hobby project for fun and learning. It is not financial advice.</b></p>
+      <p>Dividend Buy Planner is provided for educational and entertainment purposes only. Nothing in it is financial, investment, tax or legal advice, and nothing in it is a recommendation, solicitation or offer to buy or sell any security. Its creator is not a registered investment adviser, broker-dealer, financial planner or tax professional.</p>
+      <p>Scores, suggested orders, rebalancing ideas and projections come from simple rules applied to numbers you enter or that are pulled from public sources. Prices, distributions and ex-dividend dates may be delayed, estimated or wrong. The planner doesn't know your full financial situation, goals, risk tolerance, taxes or fees.</p>
+      <p>Investing involves risk, including the loss of money you invest. Past distributions and performance don't guarantee future results. Check every figure with your broker and talk to a licensed professional before making investment decisions.</p>
+      <p>The planner is provided "as is", without warranties of any kind. You use it at your own risk, and its creator is not liable for any losses or decisions based on it. Funds mentioned are examples, not endorsements.</p>
+    </div>
+    <label class="disc-ok" for="discChk"><input type="checkbox" id="discChk"><span>I understand this is not financial advice and I'm responsible for my own investment decisions.</span></label>
+    <div class="btn-row"><button type="button" class="primary" id="discGo" disabled>Start planning</button><button type="button" class="ghost" id="discBack" hidden>Back to the planner</button></div>
   </section>
 </div>
 
@@ -428,9 +450,9 @@ details.mini .ed{padding:4px 0 0;gap:8px}
     </div>
     <div class="chart" id="divChart"></div>
     <div class="legend-row" id="divLegend"></div>
-    <div class="sec-head" style="margin-top:6px"><h3>Treasury by fund</h3><span class="hint">Amount invested and yield</span></div>
+    <div class="sec-head" style="margin-top:6px"><h3>Treasury by fund</h3><span class="hint">What each holding is worth today, and its yield</span></div>
     <div class="chart" id="treasChart"></div>
-    <div class="legend-row"><span><i class="sw" style="background:var(--s1)"></i>Invested (bar, by sector)</span><span><i class="ln" style="background:var(--gold)"></i>Yield on cost</span><span><i class="ln" style="background:var(--muted)"></i>Current yield</span></div>
+    <div class="legend-row"><span><i class="sw" style="background:var(--s1)"></i>Current worth (by sector)</span><span><i class="ln" style="background:var(--ink)"></i>What you paid</span><span><i class="ln" style="background:var(--gold)"></i>Yield today</span><span><i class="ln" style="background:var(--muted)"></i>Yield on cost</span></div>
     <div class="hint" id="treasNote"></div>
     <details>
       <summary>Log or correct monthly dividends <span class="num" id="dvCount"></span></summary>
@@ -451,15 +473,14 @@ details.mini .ed{padding:4px 0 0;gap:8px}
     <h2>Purchase day</h2>
     <div class="fields">
       <label for="buyDate">Buy date<input type="date" id="buyDate"></label>
-      <label for="monthly">I invest each month ($)<input type="number" id="monthly" step="25" min="0" inputmode="decimal"></label>
-      <label for="cash" class="full">Cash to invest this time ($)<input type="number" id="cash" step="0.01" min="0" inputmode="decimal"></label>
+      <label for="cash" class="full">Cash to invest this time ($)<input type="number" id="cash" step="0.01" min="0" inputmode="decimal" placeholder="0" value="0"></label>
     </div>
     <div class="hint" id="cashNote"></div>
     <div class="price-fresh" id="buyFresh"></div>
   </section>
 
   <section class="ticket" aria-live="polite" data-tab="buy">
-    <div class="speaker"><div style="display:flex;flex-direction:column;gap:3px"><span class="eyebrow" style="color:var(--gold)">Shopkeeper</span><span class="hint">Recommended order</span></div></div>
+    <div class="speaker"><div style="display:flex;flex-direction:column;gap:3px"><span class="eyebrow" style="color:var(--gold)">Shopkeeper</span><span class="hint">Suggested order · not advice</span></div></div>
     <h2 id="tHead">–</h2>
     <div class="lines" id="tLines"></div>
     <div class="foot">
@@ -569,7 +590,7 @@ details.mini .ed{padding:4px 0 0;gap:8px}
           <label for="drift">Distribution change per year (%)<input type="number" id="drift" step="0.5"></label>
         </div>
         <p class="hint">Weights are normalized, so they don't need to add to 100. A negative distribution change models the slow NAV erosion common in option-income funds.</p>
-        <div class="btn-row"><button type="button" id="reset" class="danger sm">Erase all data and start over</button></div>
+        <div class="btn-row"><button type="button" class="sm" id="discOpen">Read the disclaimer</button><button type="button" id="reset" class="danger sm">Erase all data and start over</button></div>
       </div>
     </details>
   </section>
@@ -582,6 +603,7 @@ details.mini .ed{padding:4px 0 0;gap:8px}
     <p>Total return counts the per-fund distribution log (the planner adds an estimate when each ex-dividend date passes; confirm it with the real amount) plus anything entered as received before tracking began. This is a rules-based helper, not financial advice; ex-dividend dates are estimates, and selling can create taxes.</p>
   </section>
 </div>
+<p class="disc-foot">For fun and learning only. Not financial advice. <button type="button" class="linkish" id="discFoot">Disclaimer</button></p>
 <div class="toast" id="toast" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
@@ -832,10 +854,7 @@ function render(){
   drawGoal();
 
   const pay=monthPayouts(buyDate),divM=pay.reduce((a,b)=>a+b,0);
-  if(document.activeElement!==$("monthly"))$("monthly").value=s.contrib;
-  if(!cashTouched)$("cash").value=(s.contrib+divM).toFixed(2);
-  $("cashNote").innerHTML=`Suggested: your ${usd(s.contrib)} monthly investment + about ${usd(divM,2)} in distributions paid in ${buyDate.toLocaleDateString("en-US",{month:"long"})}.${cashTouched?` You've entered your own amount. <button type="button" class="ghost sm" id="cashReset">Use suggested</button>`:" Changing your monthly amount also updates the goal projection."}`;
-  if(cashTouched)$("cashReset").onclick=()=>{cashTouched=false;render()};
+  $("cashNote").textContent=divM>0?`For reference: about ${usd(divM,2)} in distributions is expected to pay in ${buyDate.toLocaleDateString("en-US",{month:"long"})}.`:"";
   const cash=parseFloat($("cash").value)||0;
 
   const h0=state.funds.map(f=>f.shares);
@@ -1115,28 +1134,29 @@ $("dsAdd").addEventListener("click",()=>{const tk=$("dsTk").value,ex=$("dsDate")
   else state.dists.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),tk,ex,per,shares:f.shares,amt:+amt.toFixed(2),est});
   state.dists.sort((a,b)=>a.ex<b.ex?1:-1);$("dsAmt").value="";save();render();toast(dup?`${tk} entry for that month updated`:`${tk} distribution added`)});
 
-/* ---------- treasury: invested and yield per fund ---------- */
+/* ---------- treasury: current worth and yield per fund ---------- */
 function drawTreasury(){
-  const box=$("treasChart");const rows=state.funds.filter(f=>f.shares>0).map(f=>{const cost=f.avgCost>0?f.shares*f.avgCost:f.shares*f.price;const ann=f.shares*annualDiv(f);
-    return {f,inv:cost,yoc:cost>0?ann/cost:0,cur:yieldOf(f),costKnown:f.avgCost>0}}).sort((a,b)=>b.inv-a.inv);
+  const box=$("treasChart");const rows=state.funds.filter(f=>f.shares>0).map(f=>{const worth=f.shares*f.price,cost=f.avgCost>0?f.shares*f.avgCost:null,ann=f.shares*annualDiv(f);
+    return {f,worth,cost,yoc:cost?ann/cost:null,cur:yieldOf(f)}}).sort((a,b)=>b.worth-a.worth);
   if(!rows.length){box.innerHTML=`<p class="hint">Add shares to see the treasury.</p>`;$("treasNote").textContent="";return}
   const W=Math.max(300,box.clientWidth||600),narrow=W<480,L=narrow?54:66,R=narrow?92:120,rowH=34,T=6,H=T+rows.length*rowH+20;
-  const maxInv=Math.max(...rows.map(r=>r.inv))*1.02,maxY=Math.max(.05,...rows.map(r=>Math.max(r.yoc,r.cur)))*1.08;
-  const bw=W-L-R,xI=v=>L+v/maxInv*bw,xY=v=>L+v/maxY*bw;
-  let g=`<svg shape-rendering="crispEdges" viewBox="0 0 ${W} ${H}" role="img" aria-label="Amount invested and yield by fund">`;
-  rows.forEach((r,i)=>{const y=T+i*rowH,fill=cvar(r.f.cat);
+  const maxV=Math.max(...rows.map(r=>r.worth))*1.02,maxY=Math.max(.05,...rows.map(r=>Math.max(r.yoc||0,r.cur)))*1.08;
+  const bw=W-L-R,xV=v=>L+v/maxV*bw,xY=v=>L+v/maxY*bw;
+  let g=`<svg shape-rendering="crispEdges" viewBox="0 0 ${W} ${H}" role="img" aria-label="Current worth and yield by fund">`;
+  rows.forEach((r,i)=>{const y=T+i*rowH,fill=cvar(r.f.cat),gain=r.cost!=null?r.worth-r.cost:null;
     g+=`<text x="${L-8}" y="${y+15}" text-anchor="end" class="lbl" style="font-family:var(--f-display);font-size:9px">${esc(r.f.tk)}</text>`;
     g+=`<rect x="${L}" y="${y+2}" width="${bw}" height="16" fill="var(--track)"/>`;
-    g+=`<rect x="${L}" y="${y+2}" width="${Math.max(2,xI(r.inv)-L)}" height="16" fill="${fill}"/><rect x="${L}" y="${y+2}" width="${Math.max(2,xI(r.inv)-L)}" height="2" fill="#fff" opacity=".3"/>`;
-    g+=`<rect x="${L}" y="${y+21}" width="${Math.max(1,xY(r.yoc)-L)}" height="3" fill="var(--gold)"/>`;
-    g+=`<rect x="${L}" y="${y+26}" width="${Math.max(1,xY(r.cur)-L)}" height="2" fill="var(--muted)"/>`;
-    g+=`<text x="${W-R+8}" y="${y+14}" style="fill:var(--ink)">${usd(r.inv)}${r.costKnown?"":"*"}</text>`;
-    g+=`<text x="${W-R+8}" y="${y+29}" style="fill:var(--gold);font-size:12px">${pct(r.yoc)}${narrow?"":" yield"}</text>`;
-    g+=`<rect x="0" y="${y}" width="${W}" height="${rowH}" fill="transparent" data-tip="${esc(r.f.tk)} · <b>${usd(r.inv)}</b> ${r.costKnown?"invested":"market value"}<br>${pct(r.yoc)} yield on cost · ${pct(r.cur)} at today's price<br>${usd(r.f.shares*annualDiv(r.f)/12,2)}/mo · ${usd(distTotal(r.f.tk)+(+r.f.collected||0),2)} received so far"/>`});
-  const totInv=rows.reduce((a,r)=>a+r.inv,0),totAnn=rows.reduce((a,r)=>a+r.f.shares*annualDiv(r.f),0);
-  g+=`<text x="${L}" y="${H-4}" style="font-size:12px">Total ${usd(totInv)} · ${pct(totInv?totAnn/totInv:0)} yield on cost</text></svg>`;
+    g+=`<rect x="${L}" y="${y+2}" width="${Math.max(2,xV(r.worth)-L)}" height="16" fill="${fill}"/><rect x="${L}" y="${y+2}" width="${Math.max(2,xV(r.worth)-L)}" height="2" fill="#fff" opacity=".3"/>`;
+    if(r.cost!=null){const cx=Math.min(L+bw,xV(r.cost));g+=`<rect x="${cx-1}" y="${y}" width="2" height="20" fill="var(--ink)" opacity=".85"/>`}
+    g+=`<rect x="${L}" y="${y+21}" width="${Math.max(1,xY(r.cur)-L)}" height="3" fill="var(--gold)"/>`;
+    if(r.yoc!=null)g+=`<rect x="${L}" y="${y+26}" width="${Math.max(1,xY(r.yoc)-L)}" height="2" fill="var(--muted)"/>`;
+    g+=`<text x="${W-R+8}" y="${y+14}" style="fill:var(--ink)">${usd(r.worth)}</text>`;
+    g+=`<text x="${W-R+8}" y="${y+29}" style="fill:var(--gold);font-size:12px">${pct(r.cur)}${narrow?"":" yield"}</text>`;
+    g+=`<rect x="0" y="${y}" width="${W}" height="${rowH}" fill="transparent" data-tip="${esc(r.f.tk)} · worth <b>${usd(r.worth)}</b><br>${(+r.f.shares).toLocaleString()} sh × ${usd(r.f.price,2)}${r.cost!=null?`<br>Cost ${usd(r.cost)} · ${gain>=0?"+":"−"}${usd(Math.abs(gain))} (${sgnPct(gain/r.cost)})`:""}<br>${pct(r.cur)} yield at today's price${r.yoc!=null?` · ${pct(r.yoc)} on cost`:""}<br>${usd(r.f.shares*annualDiv(r.f)/12,2)}/mo · ${usd(distTotal(r.f.tk)+(+r.f.collected||0),2)} received so far"/>`});
+  const tot=rows.reduce((a,r)=>a+r.worth,0),totAnn=rows.reduce((a,r)=>a+r.f.shares*annualDiv(r.f),0);
+  g+=`<text x="${L}" y="${H-4}" style="font-size:12px">Total worth ${usd(tot)} · ${pct(tot?totAnn/tot:0)} yield</text></svg>`;
   box.innerHTML=g;attachTips(box);
-  $("treasNote").textContent=rows.some(r=>!r.costKnown)?"* No average cost entered, so market value is shown instead.":"";
+  $("treasNote").textContent=rows.some(r=>r.cost!=null)?"The thin line on each bar marks what you paid, so you can see gains and losses at a glance.":"";
 }
 
 /* ---------- fund editors ---------- */
@@ -1349,7 +1369,14 @@ const SCENES={
   const mk=t===0?1:Math.min(1,(t-SD.marchT0)/2.6),me=1-Math.pow(1-mk,2.2);SD.marching=mk<1;
   const hx=Math.round(-14+(goalX+14)*me),bob=SD.marching&&Math.floor(t*8)%2?1:0;
   [.25,.5,.75].forEach(q=>{const mx=Math.round(4+q*(cx-18))+4;const lit=p>=q&&hx>=mx-6;R(c,"#8a6f5a",mx,h-15,1,6);R(c,lit?PAL.g:"#c9cbe8",mx-2,h-17,5,3);R(c,PAL.o,mx-2,h-14,5,1)});
-  for(let i=1;i<=3;i++){const x=hx+8+i*12;if(x<cx-6)coin(c,x,h-19-Math.round(Math.abs(Math.sin(t*3+i))*2),t,i)}
+  // a trail of coins runs all the way to the castle; the knight scoops up each one he reaches
+  const gap=9,first=14;let got=0;
+  for(let x=first,i=0;x<cx-8;x+=gap,i++){const y=h-18-Math.round(Math.abs(Math.sin(t*3+i*.7))*2);
+    if(x+2<hx+8){got++;const since=hx+8-(x+2);
+      if(SD.marching&&since<7){const k=since/7;R(c,PAL.W,x+1,y-2-Math.round(k*5),1,1);R(c,PAL.G,x-1-Math.round(k*2),y-1-Math.round(k*3),1,1);R(c,PAL.G,x+3+Math.round(k*2),y-1-Math.round(k*3),1,1)}
+      continue}
+    coin(c,x,y,t,i)}
+  SD.coinsGot=got;
   if(SD.marching)for(let i=0;i<3;i++){const a=(t*3+i*.33)%1;R(c,"rgba(200,180,150,"+(.6-a*.6).toFixed(2)+")",hx-2-Math.round(a*7),h-11-Math.round(a*2)+(i%2),2,1)}
   const walk=SD.marching?Math.floor(t*8)%2:(p<1&&Math.floor(t*2.5)%2);
   spr(c,walk?SPR.hero2:SPR.hero,hx,h-9-13-bob);
@@ -1357,12 +1384,28 @@ const SCENES={
  vault(c,w,h,t){R(c,"#221f45",0,0,w,h);for(let y=0;y<h-6;y+=5){const off=(y/5)%2?4:0;for(let x=-off;x<w;x+=9){R(c,(Math.abs(Math.sin(x*12.9+y*3.1))>.85)?"#332f66":"#3a3570",x+1,y+1,8,4);R(c,"#4a4590",x+1,y+1,8,1)}}
   R(c,"#2a2550",0,h-6,w,6);R(c,"#4a4590",0,h-6,w,1);
   torch(c,10,24,t);torch(c,w-12,24,t+.4);
-  const cx=Math.round(w/2),by=h-6,p=Math.sqrt(Math.max(.02,Math.min(1,SD.pile))),ph=Math.round(3+p*15);
-  R(c,PAL.o,cx-12,by-10-8,24,8);R(c,PAL.n,cx-11,by-10-7,22,6);R(c,PAL.N,cx-11,by-10-7,22,1);R(c,PAL.g,cx-11,by-10-4,22,1);
-  for(let j=0;j<ph;j++){const half=Math.round((ph-j)*1.25)+2;R(c,j%3===0?PAL.k:PAL.g,cx-half,by-10-j-1,half*2,1);R(c,PAL.G,cx-half+1+((j*5)%Math.max(1,half*2-2)),by-10-j-1,1,1)}
-  for(let i=0;i<4;i++){const a=(t*1.3+i*1.7)%1;if(a<.5){const sx=cx-8+((i*7)%16),sy=by-12-Math.round(ph*.6)+((i*3)%5);R(c,PAL.W,sx,sy);R(c,"#ffffff88",sx-1,sy);R(c,"#ffffff88",sx+1,sy)}}
-  R(c,PAL.o,cx-12,by-11,24,11);R(c,PAL.n,cx-11,by-10,22,9);R(c,PAL.N,cx-11,by-10,22,2);R(c,PAL.L,cx-11,by-3,22,2);R(c,PAL.g,cx-12,by-8,24,1);R(c,PAL.g,cx-2,by-9,4,4);R(c,PAL.o,cx-1,by-7,2,1);
-  [[-22,0],[18,1],[26,2],[-30,3]].forEach(([dx,i])=>{if(cx+dx>2&&cx+dx<w-6)coin(c,cx+dx,by-5,t,i)})},
+  // the money bin: a mound of gold that grows from a small heap to wall-to-wall as income nears the goal
+  const p=Math.max(0,Math.min(1.2,SD.progress||0)),e=Math.pow(Math.min(1,p),.75);
+  const cx=Math.round(w*.55),base=h-6,ph=Math.round(3+e*(h-13)),half=Math.round(9+e*(w*.62));
+  const rows=[];for(let j=0;j<ph;j++){const k=j/ph;rows.push(Math.max(1,Math.round(half*Math.pow(1-k,.5)*(1-.04*Math.sin(j*1.7+t*.0)))))}
+  rows.forEach((hw,j)=>{const y=base-j-1;R(c,PAL.o,cx-hw-1,y,hw*2+2,1)});
+  rows.forEach((hw,j)=>{const y=base-j-1;R(c,j%4===0?PAL.k:PAL.g,cx-hw,y,hw*2,1);R(c,PAL.k,cx+hw-Math.max(1,hw>>2),y,Math.max(1,hw>>2),1)});
+  const r=rng(61),nCoins=Math.round(6+e*w*1.2);
+  for(let i=0;i<nCoins;i++){const j=(r()*ph*.95)|0,hw=rows[j]||1,x=cx-hw+1+((r()*Math.max(1,hw*2-3))|0),y=base-j-1;R(c,PAL.G,x,y,2,1);R(c,PAL.k,x,y+1>base-1?y:y+1,2,1)}
+  for(let i=0;i<Math.round(3+e*8);i++){const a=(t*1.1+i*.37)%1;if(a<.35){const j=(r()*ph)|0,hw=rows[j]||1,x=cx-hw+((r()*hw*2)|0),y=base-j-1;R(c,PAL.W,x,y);R(c,"#ffffffaa",x-1,y);R(c,"#ffffffaa",x+1,y);R(c,"#ffffffaa",x,y-1)}}
+  // the chest, overflowing at first, then buried
+  const chx=Math.max(3,cx-half-4)-(e>.5?0:0),cy=base-11;
+  if(e<.55){R(c,PAL.o,chx-1,cy,24,11);R(c,PAL.n,chx,cy+1,22,9);R(c,PAL.N,chx,cy+1,22,2);R(c,PAL.L,chx,cy+8,22,2);R(c,PAL.g,chx-1,cy+3,24,1);R(c,PAL.g,chx+9,cy+2,4,4);R(c,PAL.o,chx+10,cy+4,2,1);
+    for(let k=0;k<5;k++)R(c,k%2?PAL.k:PAL.g,chx+2+k*4,cy-1-(k%3),3,2)}
+  // coins spill across the floor
+  const spill=Math.round(2+e*10);for(let i=0;i<spill;i++){const x=Math.round(cx+(i%2?1:-1)*(half+3+((i*7)%Math.max(4,w*.25))));if(x>2&&x<w-6)coin(c,x,base-5,t,i)}
+  // fountain of coins from the summit past the halfway mark
+  if(e>=.5)for(let i=0;i<Math.round(2+e*5);i++){const a=(t*.9+i*.29)%1,dx=Math.round((i%2?1:-1)*(4+i*3)*a),dy=Math.round(-14*a+18*a*a);R(c,i%3?PAL.g:PAL.G,cx+dx,base-ph-2+dy,2,2)}
+  // near the goal the knight dives in and swims, Scrooge-style
+  if(p>=.8){const bob=Math.round(Math.sin(t*3)*1.5),sx=cx-5+Math.round(Math.sin(t*.9)*Math.min(8,half*.3)),sy=base-ph-4+bob;
+    const head=SPR.hero.slice(0,p>=1?9:7);spr(c,head,sx,sy);
+    R(c,PAL.g,sx-2,sy+head.length-1,14,2);R(c,PAL.G,sx-1,sy+head.length-1,3,1);R(c,PAL.G,sx+8,sy+head.length-1,3,1);
+    if(p>=1)for(let i=0;i<6;i++){const a=(t*1.6+i*.17)%1;R(c,i%2?PAL.G:PAL.g,sx+4+Math.round((i-2.5)*4*a),sy+5-Math.round(10*a-12*a*a),1,1)}}},
  shop(c,w,h,t){for(let x=0;x<w;x+=6){R(c,(x/6)%2?"#4e3220":"#5a3a24",x,0,6,h);R(c,"#3a2416",x,0,1,h)}
   const wy=h-30;R(c,"#3a2416",6,wy,16,13);R(c,"#1a1b44",7,wy+1,14,6);R(c,"#2a2160",7,wy+7,14,5);R(c,PAL.w,16,wy+3,2,2);R(c,"#ffffff",9,wy+3);R(c,"#ffffff",12,wy+9);R(c,"#3a2416",13,wy+1,1,11);R(c,"#3a2416",7,wy+6,14,1);
   const r=rng(21),cols=["#3b8fe8","#e8692e","#1ea66f","#e05a98","#8f7cf0","#ff5a5f","#5fd46e"];
@@ -1632,7 +1675,6 @@ $("mSell").addEventListener("click",()=>{rebalMode="sell";$("mSell").setAttribut
 const today=new Date();$("buyDate").value=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
 $("buyDate").addEventListener("change",render);
 $("cash").addEventListener("input",()=>{cashTouched=true;render()});
-$("monthly").addEventListener("change",()=>{const v=parseFloat($("monthly").value);if(v>=0){state.settings.contrib=v;$("contrib").value=v;save();render();toast(`Monthly investment set to ${usd(v)}`)}else $("monthly").value=state.settings.contrib});
 $("record").addEventListener("click",()=>{if(!plan)return;const buyDate=parseDate($("buyDate").value);
   lastPurchase={funds:state.funds.map(f=>({shares:f.shares,avgCost:f.avgCost,collected:f.collected})),divLog:structuredClone(state.divLog),dists:structuredClone(state.dists)};
   autoEstimateDists();
@@ -1640,7 +1682,7 @@ $("record").addEventListener("click",()=>{if(!plan)return;const buyDate=parseDat
   if(fresh){const est={};state.funds.forEach((f,i)=>{if(pay[i]>0)est[f.tk]=+pay[i].toFixed(2)});state.divLog.push({m:mk,est,actual:null});state.divLog.sort((a,b)=>a.m<b.m?-1:1)}
   state.funds.forEach((f,i)=>{const n=plan.buys[i];
     if(n>0){if(f.avgCost>0)f.avgCost=+((f.avgCost*f.shares+n*f.price)/(f.shares+n)).toFixed(4);else if(f.shares===0)f.avgCost=f.price;f.shares+=n}});
-  snapshot();save();cashTouched=false;$("undo").hidden=false;buildEditors();render();toast("Purchase recorded")});
+  snapshot();save();cashTouched=false;$("cash").value="0";$("undo").hidden=false;buildEditors();render();toast("Purchase recorded")});
 $("undo").addEventListener("click",()=>{if(!lastPurchase)return;lastPurchase.funds.forEach((p,i)=>{if(state.funds[i])Object.assign(state.funds[i],p)});state.divLog=lastPurchase.divLog;if(lastPurchase.dists)state.dists=lastPurchase.dists;lastPurchase=null;snapshot();save();$("undo").hidden=true;buildEditors();render();toast("Purchase undone")});
 $("reset").addEventListener("click",e=>{const b=e.currentTarget;if(!b.dataset.armed){b.dataset.armed="1";b.textContent="Tap again to erase everything";return}
   state=fresh();save();delete b.dataset.armed;b.textContent="Erase all data and start over";obStart(false);toast(user?"Erased here and in your account":"Erased")});
@@ -1649,7 +1691,15 @@ let rz;window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>
 function showApp(){$("ob").hidden=true;$("app").hidden=false;cashTouched=false;
   if(!state.distsFrom){state.distsFrom=isoDay(new Date());saveLocal()}if(autoEstimateDists())save();
   bindSettings();buildEditors();refreshMainTargets();render()}
-function showCurrent(){if(state.onboarded&&state.funds.length)showApp();else obStart(false)}
+const DISCK="divplanner.disclaimer.v1";
+const discOk=()=>{try{return localStorage.getItem(DISCK)==="1"}catch(e){return false}};
+function showDisc(review){$("disc").hidden=false;$("ob").hidden=true;$("app").hidden=true;$("acctWrap").hidden=true;
+  $("discChk").checked=review?true:false;$("discChk").closest("label").hidden=!!review;$("discGo").hidden=!!review;$("discBack").hidden=!review;$("discGo").disabled=!review;window.scrollTo(0,0)}
+$("discChk").addEventListener("change",()=>{$("discGo").disabled=!$("discChk").checked});
+$("discGo").addEventListener("click",()=>{if(!$("discChk").checked)return;try{localStorage.setItem(DISCK,"1")}catch(e){}$("disc").hidden=true;showCurrent()});
+$("discBack").addEventListener("click",()=>{$("disc").hidden=true;showCurrent()});
+["discOpen","discFoot"].forEach(id=>$(id).addEventListener("click",()=>showDisc(discOk())));
+function showCurrent(){if(!discOk()){showDisc(false);return}$("disc").hidden=true;if(state.onboarded&&state.funds.length)showApp();else obStart(false)}
 try{mountAll()}catch(e){}
 try{initTabs()}catch(e){}
 showCurrent();
