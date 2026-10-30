@@ -1,4 +1,4 @@
-// fund-quotes: Supabase Edge Function for Dividend Buy Planner.
+// fund-quotes: Supabase Edge Function for Dividend Kingdom.
 // Browsers can't read market-data sites directly, so this fetches, on the server, each
 // ticker's latest price, 52-week range and the last year of distributions (with ex-dates)
 // from Yahoo Finance's public chart endpoint. Signed-in users only (keep "Verify JWT" on),

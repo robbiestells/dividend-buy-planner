@@ -1,4 +1,4 @@
--- Dividend Buy Planner: account sync.
+-- Dividend Kingdom: account sync.
 -- Run once in the Supabase project (the same one Mise en Place uses):
 -- SQL Editor -> New query -> paste -> Run. Safe to run again.
 --

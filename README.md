@@ -1,4 +1,4 @@
-# Dividend Buy Planner
+# Dividend Kingdom
 
 A planner for building a monthly-income portfolio. Set up your holdings from a screenshot or by searching, then get:
 
